@@ -2,7 +2,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Search, Filter, ExternalLink, MessageSquare, Calendar } from "lucide-react";
+import { Search, Filter, ExternalLink, MessageSquare, Calendar, Brain, TrendingUp, AlertTriangle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { AIService, BrandMention } from "@/services/aiService";
 
 const mockMentions = [
   {
@@ -70,6 +72,48 @@ const getTypeIcon = (type: string) => {
 };
 
 export default function Mentions() {
+  const [mentions, setMentions] = useState(mockMentions);
+  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sentimentSummary, setSentimentSummary] = useState<any>(null);
+
+  useEffect(() => {
+    loadSentimentSummary();
+  }, []);
+
+  const loadSentimentSummary = async () => {
+    // Calculate sentiment summary from mentions
+    const positive = mentions.filter(m => m.sentiment === 'positive').length;
+    const negative = mentions.filter(m => m.sentiment === 'negative').length;
+    const neutral = mentions.filter(m => m.sentiment === 'neutral').length;
+    const total = mentions.length;
+
+    setSentimentSummary({
+      positive: Math.round((positive / total) * 100),
+      negative: Math.round((negative / total) * 100),
+      neutral: Math.round((neutral / total) * 100),
+      totalMentions: total,
+      averageScore: 7.2 // Mock average sentiment score
+    });
+  };
+
+  const analyzeMentionSentiment = async (mentionText: string) => {
+    setLoading(true);
+    try {
+      const sentiment = await AIService.analyzeSentiment(mentionText);
+      console.log('Sentiment analysis:', sentiment);
+    } catch (error) {
+      console.error('Failed to analyze sentiment:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredMentions = mentions.filter(mention => 
+    mention.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    mention.snippet.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -77,14 +121,63 @@ export default function Mentions() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Brand Mentions</h1>
           <p className="text-muted-foreground">
-            Monitor what people are saying about your brand across the web
+            AI-powered mention monitoring and sentiment analysis
           </p>
         </div>
-        <Button>
-          <Search className="h-4 w-4 mr-2" />
-          Search New Mentions
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline">
+            <Brain className="h-4 w-4 mr-2" />
+            AI Analysis
+          </Button>
+          <Button>
+            <Search className="h-4 w-4 mr-2" />
+            Search New
+          </Button>
+        </div>
       </div>
+
+      {/* Sentiment Summary */}
+      {sentimentSummary && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              Sentiment Overview
+            </CardTitle>
+            <CardDescription>
+              Real-time sentiment analysis of brand mentions
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center p-4 bg-green-50 rounded-lg">
+                <div className="text-2xl font-bold text-green-700">
+                  {sentimentSummary.positive}%
+                </div>
+                <div className="text-sm text-green-600">Positive</div>
+              </div>
+              <div className="text-center p-4 bg-gray-50 rounded-lg">
+                <div className="text-2xl font-bold text-gray-700">
+                  {sentimentSummary.neutral}%
+                </div>
+                <div className="text-sm text-gray-600">Neutral</div>
+              </div>
+              <div className="text-center p-4 bg-red-50 rounded-lg">
+                <div className="text-2xl font-bold text-red-700">
+                  {sentimentSummary.negative}%
+                </div>
+                <div className="text-sm text-red-600">Negative</div>
+              </div>
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <div className="text-2xl font-bold text-blue-700">
+                  {sentimentSummary.averageScore}
+                </div>
+                <div className="text-sm text-blue-600">Avg Score</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Filters & Search */}
       <Card>
@@ -93,6 +186,8 @@ export default function Mentions() {
             <div className="flex-1">
               <Input 
                 placeholder="Search mentions..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full"
               />
             </div>
@@ -100,13 +195,24 @@ export default function Mentions() {
               <Filter className="h-4 w-4 mr-2" />
               Filters
             </Button>
+            <Button variant="outline">
+              <Brain className="h-4 w-4 mr-2" />
+              AI Insights
+            </Button>
           </div>
         </CardContent>
       </Card>
 
       {/* Mentions Feed */}
       <div className="space-y-4">
-        {mockMentions.map((mention) => (
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">Recent Mentions</h2>
+          <Badge variant="outline" className="text-primary">
+            {filteredMentions.length} mentions
+          </Badge>
+        </div>
+        
+        {filteredMentions.map((mention) => (
           <Card key={mention.id} className="hover:shadow-md transition-shadow">
             <CardContent className="pt-6">
               <div className="space-y-4">
@@ -153,6 +259,15 @@ export default function Mentions() {
                   </div>
                   
                   <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => analyzeMentionSentiment(mention.snippet)}
+                      disabled={loading}
+                    >
+                      <Brain className="h-3 w-3 mr-1" />
+                      Analyze
+                    </Button>
                     <Button variant="outline" size="sm">
                       Reply
                     </Button>

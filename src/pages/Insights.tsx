@@ -2,7 +2,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Bot, RefreshCw, TrendingUp, AlertTriangle, CheckCircle } from "lucide-react";
+import { Bot, RefreshCw, TrendingUp, AlertTriangle, CheckCircle, Sparkles, Brain } from "lucide-react";
+import { useState, useEffect } from "react";
+import { AIService, AIRecommendation } from "@/services/aiService";
+import RecommendationCard from "@/components/ai/RecommendationCard";
+import SentimentChart from "@/components/analytics/SentimentChart";
 
 const mockRecommendations = [
   {
@@ -78,6 +82,66 @@ const getStatusIcon = (status: string) => {
 };
 
 export default function Insights() {
+  const [recommendations, setRecommendations] = useState<AIRecommendation[]>([]);
+  const [insights, setInsights] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [sentimentData, setSentimentData] = useState<any[]>([]);
+
+  useEffect(() => {
+    loadInitialData();
+  }, []);
+
+  const loadInitialData = async () => {
+    try {
+      setLoading(true);
+      const [recs, aiInsights, sentiment] = await Promise.all([
+        AIService.generateRecommendations({}),
+        AIService.generateInsights({}),
+        generateMockSentimentData()
+      ]);
+      
+      setRecommendations(recs);
+      setInsights(aiInsights);
+      setSentimentData(sentiment);
+    } catch (error) {
+      console.error('Failed to load insights:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateMockSentimentData = () => {
+    const data = [];
+    const now = new Date();
+    for (let i = 29; i >= 0; i--) {
+      const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      data.push({
+        date: date.toISOString().split('T')[0],
+        positive: Math.round(40 + Math.random() * 20),
+        negative: Math.round(10 + Math.random() * 15),
+        neutral: Math.round(35 + Math.random() * 20),
+        overall: 6.5 + Math.random() * 2.5
+      });
+    }
+    return data;
+  };
+
+  const handleGenerateInsights = async () => {
+    setLoading(true);
+    const newInsights = await AIService.generateInsights({});
+    setInsights(newInsights);
+    setLoading(false);
+  };
+
+  const handleAcceptRecommendation = (id: string) => {
+    console.log('Accepting recommendation:', id);
+    // Implement recommendation acceptance logic
+  };
+
+  const handleDismissRecommendation = (id: string) => {
+    setRecommendations(prev => prev.filter(rec => rec.id !== id));
+  };
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -88,83 +152,80 @@ export default function Insights() {
             AI-powered recommendations and insights for your brand growth
           </p>
         </div>
-        <Button>
-          <Bot className="h-4 w-4 mr-2" />
-          Generate New Insights
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline">
+            <Brain className="h-4 w-4 mr-2" />
+            AI Analysis
+          </Button>
+          <Button onClick={handleGenerateInsights} disabled={loading}>
+            <Sparkles className="h-4 w-4 mr-2" />
+            {loading ? 'Generating...' : 'New Insights'}
+          </Button>
+        </div>
       </div>
 
-      {/* Quick Insights */}
+      {/* AI Insights */}
       <div className="grid gap-6 md:grid-cols-3">
-        {mockInsights.map((insight, index) => (
-          <Card key={index}>
+        {insights.map((insight, index) => (
+          <Card key={index} className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-primary" />
                 {insight.title}
+                <Badge variant="outline" className="ml-auto">
+                  {Math.round(insight.confidence * 100)}%
+                </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">{insight.content}</p>
+              <div className="mt-3 flex items-center gap-2">
+                <Badge 
+                  variant={insight.impact === 'positive' ? 'default' : 'destructive'}
+                  className="text-xs"
+                >
+                  {insight.impact}
+                </Badge>
+                <span className="text-xs text-muted-foreground">{insight.timeframe}</span>
+              </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Recommendations */}
-      <Card>
-        <CardHeader>
-          <CardTitle>AI Recommendations</CardTitle>
-          <CardDescription>
-            Actionable insights to improve your brand performance
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {mockRecommendations.map((rec) => (
-            <div key={rec.id} className="space-y-4 pb-6 border-b last:border-0">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start space-x-3">
-                  {getStatusIcon(rec.status)}
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{rec.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-1">{rec.description}</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Badge variant="outline">{rec.category}</Badge>
-                  <Badge className={getImpactColor(rec.impact)}>
-                    {rec.impact} Impact
-                  </Badge>
-                </div>
-              </div>
+      {/* Sentiment Analysis */}
+      <SentimentChart 
+        data={sentimentData}
+        title="Brand Sentiment Analysis"
+        timeframe="Last 30 days"
+      />
 
-              {rec.status !== 'pending' && (
-                <div className="ml-7 space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Progress</span>
-                    <span className="font-medium">{rec.progress}%</span>
-                  </div>
-                  <Progress value={rec.progress} className="h-2" />
-                </div>
-              )}
+      {/* AI Recommendations */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold">AI Recommendations</h2>
+            <p className="text-muted-foreground">
+              Personalized action items based on your brand data
+            </p>
+          </div>
+          <Badge variant="outline" className="text-primary">
+            {recommendations.length} Active
+          </Badge>
+        </div>
 
-              <div className="ml-7 flex gap-2">
-                {rec.status === 'pending' && (
-                  <Button size="sm">Start Implementation</Button>
-                )}
-                {rec.status === 'in-progress' && (
-                  <Button size="sm" variant="outline">Update Progress</Button>
-                )}
-                {rec.status === 'completed' && (
-                  <Button size="sm" variant="outline">View Results</Button>
-                )}
-                <Button size="sm" variant="ghost">Dismiss</Button>
-              </div>
-            </div>
+        <div className="grid gap-6 lg:grid-cols-2">
+          {recommendations.map((recommendation) => (
+            <RecommendationCard
+              key={recommendation.id}
+              recommendation={recommendation}
+              onAccept={handleAcceptRecommendation}
+              onDismiss={handleDismissRecommendation}
+              onViewDetails={(id) => console.log('View details:', id)}
+            />
           ))}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

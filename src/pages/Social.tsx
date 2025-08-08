@@ -1,7 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Instagram, Twitter, Linkedin, TrendingUp, Users, Heart } from "lucide-react";
+import { Plus, Instagram, Twitter, Linkedin, TrendingUp, Users, Heart, BarChart3, Zap } from "lucide-react";
+import { useState, useEffect } from "react";
+import { SocialMetricsService, SocialMetrics, SocialAlert } from "@/services/socialMetricsService";
+import SocialMetricsCard from "@/components/social/SocialMetricsCard";
 
 const mockSocialAccounts = [
   {
@@ -73,6 +76,50 @@ const mockRecentPosts = [
 ];
 
 export default function Social() {
+  const [socialMetrics, setSocialMetrics] = useState<SocialMetrics[]>([]);
+  const [alerts, setAlerts] = useState<SocialAlert[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadSocialData();
+  }, []);
+
+  const loadSocialData = async () => {
+    try {
+      setLoading(true);
+      const [metrics, socialAlerts] = await Promise.all([
+        SocialMetricsService.getAllMetrics(),
+        SocialMetricsService.getAlerts()
+      ]);
+      
+      setSocialMetrics(metrics);
+      setAlerts(socialAlerts);
+    } catch (error) {
+      console.error('Failed to load social data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConnectAccount = () => {
+    console.log('Connect social account');
+    // Implement social account connection
+  };
+
+  const handleOptimize = (platform: string) => {
+    console.log('Optimize', platform);
+    // Implement optimization suggestions
+  };
+
+  const getAlertSeverityColor = (severity: string) => {
+    switch (severity) {
+      case 'critical': return 'bg-red-500 text-white';
+      case 'high': return 'bg-orange-500 text-white';
+      case 'medium': return 'bg-yellow-500 text-black';
+      default: return 'bg-blue-500 text-white';
+    }
+  };
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -80,68 +127,78 @@ export default function Social() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Social Media</h1>
           <p className="text-muted-foreground">
-            Track your social media performance and engagement
+            AI-powered social media analytics and optimization
           </p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Connect Account
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline">
+            <BarChart3 className="h-4 w-4 mr-2" />
+            Analytics
+          </Button>
+          <Button onClick={handleConnectAccount}>
+            <Plus className="h-4 w-4 mr-2" />
+            Connect Account
+          </Button>
+        </div>
       </div>
 
-      {/* Social Accounts */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {mockSocialAccounts.map((account) => {
-          const IconComponent = account.icon;
-          return (
-            <Card key={account.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center justify-between">
+      {/* Alerts */}
+      {alerts.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Zap className="h-5 w-5 text-yellow-500" />
+              Social Media Alerts
+            </CardTitle>
+            <CardDescription>
+              Real-time notifications about your social media performance
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {alerts.map((alert) => (
+                <div key={alert.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center space-x-3">
-                    <IconComponent className={`h-6 w-6 ${account.color}`} />
+                    <Badge className={getAlertSeverityColor(alert.severity)}>
+                      {alert.severity}
+                    </Badge>
                     <div>
-                      <CardTitle className="text-lg">{account.platform}</CardTitle>
-                      <CardDescription>{account.username}</CardDescription>
+                      <h4 className="font-medium">{alert.title}</h4>
+                      <p className="text-sm text-muted-foreground">{alert.description}</p>
                     </div>
                   </div>
-                  <Badge variant="outline" className="text-success">
-                    {account.growth}
-                  </Badge>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="space-y-4">
-                {/* Metrics Grid */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-3 bg-muted/50 rounded-lg">
-                    <div className="text-xl font-semibold">{(account.followers / 1000).toFixed(1)}K</div>
-                    <div className="text-xs text-muted-foreground">Followers</div>
-                  </div>
-                  <div className="text-center p-3 bg-muted/50 rounded-lg">
-                    <div className="text-xl font-semibold">{account.engagement}%</div>
-                    <div className="text-xs text-muted-foreground">Engagement</div>
+                  <div className="flex items-center space-x-2">
+                    <Badge variant="outline">{alert.platform}</Badge>
+                    {alert.actionRequired && (
+                      <Button size="sm">Take Action</Button>
+                    )}
                   </div>
                 </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Following:</span>
-                    <span className="font-medium">{account.following}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Posts:</span>
-                    <span className="font-medium">{account.posts}</span>
-                  </div>
-                </div>
+      {/* Social Accounts */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold">Connected Accounts</h2>
+          <Badge variant="outline" className="text-primary">
+            {socialMetrics.length} Connected
+          </Badge>
+        </div>
 
-                <Button variant="outline" className="w-full">
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  View Analytics
-                </Button>
-              </CardContent>
-            </Card>
-          );
-        })}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {socialMetrics.map((metrics) => (
+            <SocialMetricsCard
+              key={metrics.platform}
+              metrics={metrics}
+              onViewDetails={() => console.log('View details for', metrics.platform)}
+              onOptimize={() => handleOptimize(metrics.platform)}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Recent Posts */}
