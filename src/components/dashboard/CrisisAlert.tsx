@@ -57,23 +57,23 @@ export default function CrisisAlert({
         };
       case 'high':
         return {
-          bgColor: 'bg-orange-50 border-orange-200',
-          textColor: 'text-orange-700',
-          badgeColor: 'bg-orange-100 text-orange-700 border-orange-200',
+          bgColor: 'bg-orange-50 border-orange-200 dark:bg-orange-900/20 dark:border-orange-800',
+          textColor: 'text-orange-700 dark:text-orange-300',
+          badgeColor: 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800',
           icon: <AlertTriangle className="h-5 w-5" />
         };
       case 'medium':
         return {
-          bgColor: 'bg-yellow-50 border-yellow-200',
-          textColor: 'text-yellow-700',
-          badgeColor: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+          bgColor: 'bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800',
+          textColor: 'text-yellow-700 dark:text-yellow-300',
+          badgeColor: 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800',
           icon: <Bell className="h-5 w-5" />
         };
       default:
         return {
-          bgColor: 'bg-blue-50 border-blue-200',
-          textColor: 'text-blue-700',
-          badgeColor: 'bg-blue-100 text-blue-700 border-blue-200',
+          bgColor: 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800',
+          textColor: 'text-blue-700 dark:text-blue-300',
+          badgeColor: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800',
           icon: <Bell className="h-5 w-5" />
         };
     }

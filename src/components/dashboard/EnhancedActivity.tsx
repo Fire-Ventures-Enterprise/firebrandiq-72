@@ -106,15 +106,15 @@ export default function EnhancedActivity() {
     }
   };
 
-  const getPriorityBadge = (priority: string, influencer?: boolean) => {
+const getPriorityBadge = (priority: string, influencer?: boolean) => {
     if (influencer) {
-      return <Badge className="bg-purple-100 text-purple-700 border-purple-200">Influencer</Badge>;
+      return <Badge className="bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800">Influencer</Badge>;
     }
     switch (priority) {
       case 'high':
-        return <Badge className="bg-red-100 text-red-700 border-red-200">High Priority</Badge>;
+        return <Badge className="bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800">High Priority</Badge>;
       case 'medium':
-        return <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200">Medium</Badge>;
+        return <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800">Medium</Badge>;
       default:
         return null;
     }

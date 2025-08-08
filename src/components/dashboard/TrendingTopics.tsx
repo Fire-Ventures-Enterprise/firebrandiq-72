@@ -79,13 +79,13 @@ export default function TrendingTopics() {
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      'Service': 'bg-blue-100 text-blue-700 border-blue-200',
-      'Product': 'bg-green-100 text-green-700 border-green-200',
-      'Business': 'bg-purple-100 text-purple-700 border-purple-200',
-      'Design': 'bg-pink-100 text-pink-700 border-pink-200',
-      'Technical': 'bg-orange-100 text-orange-700 border-orange-200'
+      'Service': 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800',
+      'Product': 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800',
+      'Business': 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800',
+      'Design': 'bg-pink-100 text-pink-700 border-pink-200 dark:bg-pink-900/30 dark:text-pink-300 dark:border-pink-800',
+      'Technical': 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800'
     };
-    return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-700 border-gray-200';
+    return colors[category as keyof typeof colors] || 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700';
   };
 
   return (
