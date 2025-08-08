@@ -1,165 +1,102 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { 
-  TrendingUp, 
-  MessageSquare, 
-  Users, 
-  Heart,
-  ExternalLink,
-  RefreshCw,
-  Plus 
-} from "lucide-react";
+import { MessageSquare, Users, Heart, TrendingUp } from "lucide-react";
+import MetricCard from "@/components/dashboard/MetricCard";
+import SentimentChart from "@/components/dashboard/SentimentChart";
+import BrandHealthScore from "@/components/dashboard/BrandHealthScore";
+import AIInsights from "@/components/dashboard/AIInsights";
+import EnhancedActivity from "@/components/dashboard/EnhancedActivity";
+import PerformanceOverview from "@/components/dashboard/PerformanceOverview";
+import QuickActionsEnhanced from "@/components/dashboard/QuickActionsEnhanced";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import CrisisAlert from "@/components/dashboard/CrisisAlert";
+import MentionsMap from "@/components/dashboard/MentionsMap";
+import TrendingTopics from "@/components/dashboard/TrendingTopics";
+import InfluencerMentions from "@/components/dashboard/InfluencerMentions";
+
+// Mock sparkline data
+const generateSparklineData = () => 
+  Array.from({ length: 30 }, (_, i) => ({ 
+    day: i + 1, 
+    value: Math.floor(Math.random() * 100) + 50 
+  }));
 
 export default function Dashboard() {
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back! Here's your brand performance overview.
-          </p>
+      <DashboardHeader />
+
+      {/* Crisis Alert */}
+      <CrisisAlert
+        severity="high"
+        title="Negative Sentiment Spike Detected"
+        description="Unusual increase in negative mentions about customer support response times."
+        affectedMentions={15}
+        timeDetected="23 minutes ago"
+      />
+
+      {/* Enhanced Key Metrics */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          title="Brand Mentions"
+          value="1,234"
+          change={12.5}
+          changeLabel="+142 from last month"
+          icon={MessageSquare}
+          sparklineData={generateSparklineData()}
+          benchmark="Above industry avg"
+        />
+        <MetricCard
+          title="Social Followers"
+          value="45.2K"
+          change={8.3}
+          changeLabel="+3.1K new followers"
+          icon={Users}
+          sparklineData={generateSparklineData()}
+          benchmark="Growing steadily"
+        />
+        <MetricCard
+          title="Avg Sentiment"
+          value="8.2/10"
+          change={3.7}
+          changeLabel="+0.3 improvement"
+          icon={Heart}
+          sparklineData={generateSparklineData()}
+          benchmark="Excellent score"
+        />
+        <MetricCard
+          title="Growth Score"
+          value="92"
+          change={5.4}
+          changeLabel="+5 points this week"
+          icon={TrendingUp}
+          sparklineData={generateSparklineData()}
+          benchmark="Top 10% brands"
+        />
+      </div>
+
+      {/* Performance Overview */}
+      <PerformanceOverview />
+
+      {/* Main Dashboard Grid */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Left Column - Main Activity */}
+        <div className="lg:col-span-2 space-y-6">
+          <EnhancedActivity />
+          <AIInsights />
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
-          </Button>
-          <Button size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            New Brand
-          </Button>
+
+        {/* Right Column - Analytics */}
+        <div className="space-y-6">
+          <BrandHealthScore score={87} previousScore={82} />
+          <SentimentChart />
+          <QuickActionsEnhanced />
         </div>
       </div>
 
-      {/* Key Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Brand Mentions</CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">1,234</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-success">+12%</span> from last month
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Social Followers</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">45.2K</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-success">+8%</span> from last month
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Sentiment</CardTitle>
-            <Heart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">8.2/10</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-success">+0.3</span> from last month
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Growth Score</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">92</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-success">+5 points</span> this week
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
+      {/* Additional Features Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {/* Recent Activity */}
-        <Card className="md:col-span-2">
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest brand mentions and social activity</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {[
-              {
-                source: "Twitter",
-                content: "Great customer service experience with TechStartup Inc!",
-                sentiment: "positive",
-                time: "2 hours ago"
-              },
-              {
-                source: "Reddit",
-                content: "Has anyone tried TechStartup Inc's new feature?",
-                sentiment: "neutral",
-                time: "4 hours ago"
-              },
-              {
-                source: "Instagram",
-                content: "Love the new design update 🔥",
-                sentiment: "positive",
-                time: "6 hours ago"
-              }
-            ].map((activity, i) => (
-              <div key={i} className="flex items-start space-x-3 p-3 rounded-lg bg-muted/50">
-                <div className="flex-1 space-y-1">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium">{activity.source}</span>
-                    <Badge 
-                      variant={activity.sentiment === 'positive' ? 'default' : 'secondary'}
-                      className="text-xs"
-                    >
-                      {activity.sentiment}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">{activity.time}</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{activity.content}</p>
-                </div>
-                <Button variant="ghost" size="sm">
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Fast access to common tasks</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button className="w-full justify-start" variant="outline">
-              <Plus className="h-4 w-4 mr-2" />
-              Add New Brand
-            </Button>
-            <Button className="w-full justify-start" variant="outline">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh All Data
-            </Button>
-            <Button className="w-full justify-start" variant="outline">
-              <TrendingUp className="h-4 w-4 mr-2" />
-              Generate Report
-            </Button>
-          </CardContent>
-        </Card>
+        <MentionsMap />
+        <TrendingTopics />
+        <InfluencerMentions />
       </div>
     </div>
   );
