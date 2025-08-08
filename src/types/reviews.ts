@@ -42,6 +42,47 @@ export interface ReviewRequest {
   campaignId?: string;
 }
 
+export interface ReviewAnalytics {
+  overallScore: number;
+  trendDirection: 'up' | 'down' | 'stable';
+  platformBreakdown: PlatformStats[];
+  competitorComparison: CompetitorStats[];
+  actionableInsights: string[];
+  exposureOpportunities: ExposureOpportunity[];
+}
+
+export interface PlatformStats {
+  platform: string;
+  totalReviews: number;
+  averageRating: number;
+  ratingDistribution: { [key: number]: number };
+  monthlyGrowth: number;
+  sentimentBreakdown: {
+    positive: number;
+    neutral: number;
+    negative: number;
+  };
+  responseRate: number;
+}
+
+export interface CompetitorStats {
+  competitorName: string;
+  platform: string;
+  totalReviews: number;
+  averageRating: number;
+  gap: number;
+  opportunity: string;
+}
+
+export interface ExposureOpportunity {
+  platform: string;
+  opportunity: string;
+  impact: 'high' | 'medium' | 'low';
+  effort: 'easy' | 'moderate' | 'difficult';
+  estimatedTimeframe: string;
+  priority: number;
+}
+
 export interface ReviewCampaign {
   id: string;
   brandId: string;

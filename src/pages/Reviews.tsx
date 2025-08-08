@@ -10,6 +10,7 @@ import { CampaignBuilder } from "@/components/reviews/CampaignBuilder";
 import { ReviewAnalytics } from "@/components/reviews/ReviewAnalytics";
 import { ExposureInsights } from "@/components/reviews/ExposureInsights";
 import { CampaignDashboard } from "@/components/reviews/CampaignDashboard";
+import { ReviewAnalyticsDashboard } from "@/components/reviews/ReviewAnalyticsDashboard";
 import { ReviewPlatform, calculateGoogleExposureNeeds } from "@/types/reviews";
 import { Star, TrendingUp, Send, Target } from "lucide-react";
 
@@ -148,7 +149,8 @@ export default function Reviews() {
         <TabsList>
           <TabsTrigger value="platforms">Platforms</TabsTrigger>
           <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="analytics">Advanced Analytics</TabsTrigger>
+          <TabsTrigger value="chart-analytics">Chart Analytics</TabsTrigger>
           <TabsTrigger value="exposure">Exposure Insights</TabsTrigger>
           <TabsTrigger value="requests">Review Requests</TabsTrigger>
         </TabsList>
@@ -166,6 +168,10 @@ export default function Reviews() {
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4">
+          <ReviewAnalyticsDashboard />
+        </TabsContent>
+
+        <TabsContent value="chart-analytics" className="space-y-4">
           <ReviewAnalytics platforms={platforms} />
         </TabsContent>
 
