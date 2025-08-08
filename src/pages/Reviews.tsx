@@ -6,8 +6,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { ReviewPlatformCard } from "@/components/reviews/ReviewPlatformCard";
 import { ReviewRequestForm } from "@/components/reviews/ReviewRequestForm";
+import { CampaignBuilder } from "@/components/reviews/CampaignBuilder";
 import { ReviewAnalytics } from "@/components/reviews/ReviewAnalytics";
 import { ExposureInsights } from "@/components/reviews/ExposureInsights";
+import { CampaignDashboard } from "@/components/reviews/CampaignDashboard";
 import { ReviewPlatform, calculateGoogleExposureNeeds } from "@/types/reviews";
 import { Star, TrendingUp, Send, Target } from "lucide-react";
 
@@ -60,6 +62,7 @@ const mockReviewPlatforms: ReviewPlatform[] = [
 export default function Reviews() {
   const [platforms] = useState<ReviewPlatform[]>(mockReviewPlatforms);
   const [showRequestForm, setShowRequestForm] = useState(false);
+  const [showCampaignBuilder, setShowCampaignBuilder] = useState(false);
 
   const totalReviews = platforms.reduce((sum, platform) => sum + platform.totalReviews, 0);
   const averageRating = platforms.reduce((sum, platform) => sum + (platform.averageRating * platform.totalReviews), 0) / totalReviews;
@@ -73,9 +76,13 @@ export default function Reviews() {
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Review Management</h2>
         <div className="flex items-center space-x-2">
-          <Button onClick={() => setShowRequestForm(true)} className="gap-2">
+          <Button onClick={() => setShowCampaignBuilder(true)} className="gap-2">
+            <Target className="h-4 w-4" />
+            Create Campaign
+          </Button>
+          <Button variant="outline" onClick={() => setShowRequestForm(true)} className="gap-2">
             <Send className="h-4 w-4" />
-            Send Review Request
+            Single Request
           </Button>
         </div>
       </div>
@@ -140,6 +147,7 @@ export default function Reviews() {
       <Tabs defaultValue="platforms" className="space-y-4">
         <TabsList>
           <TabsTrigger value="platforms">Platforms</TabsTrigger>
+          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="exposure">Exposure Insights</TabsTrigger>
           <TabsTrigger value="requests">Review Requests</TabsTrigger>
@@ -151,6 +159,10 @@ export default function Reviews() {
               <ReviewPlatformCard key={platform.platform} platform={platform} />
             ))}
           </div>
+        </TabsContent>
+
+        <TabsContent value="campaigns" className="space-y-4">
+          <CampaignDashboard />
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4">
@@ -183,6 +195,16 @@ export default function Reviews() {
 
       {showRequestForm && (
         <ReviewRequestForm onClose={() => setShowRequestForm(false)} />
+      )}
+
+      {showCampaignBuilder && (
+        <CampaignBuilder 
+          onClose={() => setShowCampaignBuilder(false)}
+          onCampaignCreated={(campaign) => {
+            console.log('Campaign created:', campaign);
+            setShowCampaignBuilder(false);
+          }}
+        />
       )}
     </div>
   );

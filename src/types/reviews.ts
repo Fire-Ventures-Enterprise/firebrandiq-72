@@ -30,13 +30,29 @@ export interface ReviewGoals {
 
 export interface ReviewRequest {
   id: string;
+  brandId: string;
   customerEmail: string;
   customerName: string;
-  platform: string;
-  status: 'pending' | 'sent' | 'responded' | 'expired';
+  platform: 'google' | 'yelp' | 'facebook';
+  status: 'pending' | 'sent' | 'completed' | 'declined';
   sentDate?: Date;
-  responseDate?: Date;
-  reviewId?: string;
+  completedDate?: Date;
+  reviewUrl: string;
+  message?: string;
+  campaignId?: string;
+}
+
+export interface ReviewCampaign {
+  id: string;
+  brandId: string;
+  name: string;
+  platforms: string[];
+  totalCustomers: number;
+  requestsSent: number;
+  reviewsReceived: number;
+  status: 'active' | 'paused' | 'completed';
+  createdAt: Date;
+  customMessage?: string;
 }
 
 // Google Business Profile recommendations
