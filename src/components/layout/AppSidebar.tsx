@@ -6,7 +6,13 @@ import {
   Bot, 
   Target, 
   TrendingUp, 
-  Settings 
+  Settings,
+  FileText,
+  Users,
+  PenTool,
+  Megaphone,
+  Calendar,
+  Palette
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
@@ -23,48 +29,36 @@ import {
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 
-const menuItems = [
-  { 
-    title: "Dashboard", 
-    url: "/dashboard", 
-    icon: BarChart3 
+const navigationSections = [
+  {
+    title: "Analytics",
+    items: [
+      { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
+      { title: "Social Media", url: "/social", icon: Instagram },
+      { title: "Mentions", url: "/mentions", icon: MessageSquare, badge: "New" },
+      { title: "AI Insights", url: "/insights", icon: Bot },
+      { title: "Reports", url: "/reports", icon: FileText },
+    ]
   },
-  { 
-    title: "Brands", 
-    url: "/brands", 
-    icon: Building2 
+  {
+    title: "Content & Campaigns",
+    items: [
+      { title: "Content Hub", url: "/content", icon: PenTool, badge: "NEW" },
+      { title: "AI Post Generator", url: "/content/generator", icon: Bot },
+      { title: "Ad Creator", url: "/campaigns/ads", icon: Megaphone },
+      { title: "Campaign Manager", url: "/campaigns", icon: Target },
+      { title: "Content Calendar", url: "/content/calendar", icon: Calendar },
+      { title: "Brand Assets", url: "/content/assets", icon: Palette },
+    ]
   },
-  { 
-    title: "Brand Mentions", 
-    url: "/mentions", 
-    icon: MessageSquare,
-    badge: "New"
-  },
-  { 
-    title: "Social Media", 
-    url: "/social", 
-    icon: Instagram 
-  },
-  { 
-    title: "AI Insights", 
-    url: "/insights", 
-    icon: Bot 
-  },
-  { 
-    title: "Competitors", 
-    url: "/competitors", 
-    icon: Target 
-  },
-  { 
-    title: "Reports", 
-    url: "/reports", 
-    icon: TrendingUp 
-  },
-  { 
-    title: "Settings", 
-    url: "/settings", 
-    icon: Settings 
-  },
+  {
+    title: "Management",
+    items: [
+      { title: "Brands", url: "/brands", icon: Building2 },
+      { title: "Competitors", url: "/competitors", icon: Users },
+      { title: "Settings", url: "/settings", icon: Settings },
+    ]
+  }
 ];
 
 export function AppSidebar() {
@@ -83,38 +77,47 @@ export function AppSidebar() {
             {!collapsed && "BrandBuilder Pro"}
           </SidebarGroupLabel>
           
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      className={({ isActive: linkIsActive }) =>
-                        `flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
-                          isActive(item.url) || linkIsActive
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground" 
-                            : "hover:bg-sidebar-accent/50"
-                        }`
-                      }
-                    >
-                      <item.icon className="h-5 w-5" />
-                      {!collapsed && (
-                        <div className="flex items-center justify-between flex-1">
-                          <span>{item.title}</span>
-                          {item.badge && (
-                            <Badge variant="secondary" className="text-xs">
-                              {item.badge}
-                            </Badge>
+          {navigationSections.map((section) => (
+            <div key={section.title}>
+              {!collapsed && (
+                <SidebarGroupLabel className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  {section.title}
+                </SidebarGroupLabel>
+              )}
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {section.items.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <NavLink 
+                          to={item.url} 
+                          className={({ isActive: linkIsActive }) =>
+                            `flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
+                              isActive(item.url) || linkIsActive
+                                ? "bg-sidebar-accent text-sidebar-accent-foreground" 
+                                : "hover:bg-sidebar-accent/50"
+                            }`
+                          }
+                        >
+                          <item.icon className="h-5 w-5" />
+                          {!collapsed && (
+                            <div className="flex items-center justify-between flex-1">
+                              <span>{item.title}</span>
+                              {item.badge && (
+                                <Badge variant="secondary" className="text-xs">
+                                  {item.badge}
+                                </Badge>
+                              )}
+                            </div>
                           )}
-                        </div>
-                      )}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </div>
+          ))}
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
