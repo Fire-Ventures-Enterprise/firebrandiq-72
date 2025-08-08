@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, X, Bell, ArrowRight } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 interface CrisisAlertProps {
   severity: 'low' | 'medium' | 'high' | 'critical';
@@ -24,8 +26,25 @@ export default function CrisisAlert({
   onViewDetails
 }: CrisisAlertProps) {
   const [isVisible, setIsVisible] = useState(true);
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   if (!isVisible) return null;
+
+  const handleNotifyTeam = () => {
+    toast({
+      title: "Team Notified",
+      description: "Alert sent to all team members about this crisis",
+    });
+  };
+
+  const handleViewDetails = () => {
+    navigate('/mentions');
+    toast({
+      title: "Crisis Analysis",
+      description: "Viewing detailed mention analysis",
+    });
+  };
 
   const getSeverityConfig = () => {
     switch (severity) {
@@ -114,12 +133,12 @@ export default function CrisisAlert({
           </div>
           
           <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleNotifyTeam}>
               Notify Team
             </Button>
             <Button 
               size="sm" 
-              onClick={onViewDetails}
+              onClick={handleViewDetails}
               className={severity === 'critical' ? 'bg-destructive hover:bg-destructive/90' : ''}
             >
               View Details

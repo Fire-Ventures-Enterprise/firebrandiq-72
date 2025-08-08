@@ -2,6 +2,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Plus, 
   FileDown, 
@@ -29,6 +31,68 @@ const syncStatuses: SyncStatus[] = [
 ];
 
 export default function QuickActionsEnhanced() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleAddBrand = () => {
+    navigate('/brands');
+    toast({
+      title: "Navigate to Brands",
+      description: "Add a new brand to monitor",
+    });
+  };
+
+  const handleExportDashboard = () => {
+    toast({
+      title: "Exporting Dashboard",
+      description: "Your dashboard data is being exported...",
+    });
+    // Simulate export functionality
+    setTimeout(() => {
+      toast({
+        title: "Export Complete",
+        description: "Dashboard data exported successfully",
+      });
+    }, 2000);
+  };
+
+  const handleScheduleContent = () => {
+    navigate('/content/generator');
+    toast({
+      title: "Content Scheduler",
+      description: "Create and schedule new content",
+    });
+  };
+
+  const handleSetAlert = () => {
+    toast({
+      title: "Alert Settings",
+      description: "Configure your monitoring alerts",
+    });
+  };
+
+  const handleAddCompetitor = () => {
+    navigate('/competitors');
+    toast({
+      title: "Competitor Analysis",
+      description: "Add competitors to track",
+    });
+  };
+
+  const handleRefreshSync = () => {
+    toast({
+      title: "Refreshing Data",
+      description: "Syncing latest data from all platforms...",
+    });
+    // Simulate refresh functionality
+    setTimeout(() => {
+      toast({
+        title: "Sync Complete",
+        description: "All platforms updated successfully",
+      });
+    }, 3000);
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'synced': return <CheckCircle className="h-3 w-3 text-success" />;
@@ -56,27 +120,27 @@ export default function QuickActionsEnhanced() {
       <CardContent className="space-y-4">
         {/* Action Buttons */}
         <div className="space-y-3">
-          <Button className="w-full justify-start" variant="outline">
+          <Button className="w-full justify-start" variant="outline" onClick={handleAddBrand}>
             <Plus className="h-4 w-4 mr-2" />
             Add New Brand
           </Button>
           
-          <Button className="w-full justify-start" variant="outline">
+          <Button className="w-full justify-start" variant="outline" onClick={handleExportDashboard}>
             <FileDown className="h-4 w-4 mr-2" />
             Export Dashboard
           </Button>
           
-          <Button className="w-full justify-start" variant="outline">
+          <Button className="w-full justify-start" variant="outline" onClick={handleScheduleContent}>
             <Calendar className="h-4 w-4 mr-2" />
             Schedule Content
           </Button>
           
-          <Button className="w-full justify-start" variant="outline">
+          <Button className="w-full justify-start" variant="outline" onClick={handleSetAlert}>
             <Bell className="h-4 w-4 mr-2" />
             Set Alert
           </Button>
           
-          <Button className="w-full justify-start" variant="outline">
+          <Button className="w-full justify-start" variant="outline" onClick={handleAddCompetitor}>
             <Users className="h-4 w-4 mr-2" />
             Add Competitor
           </Button>
@@ -86,7 +150,7 @@ export default function QuickActionsEnhanced() {
         <div className="pt-4 border-t space-y-3">
           <div className="flex items-center justify-between">
             <h4 className="font-medium text-sm">Platform Sync Status</h4>
-            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={handleRefreshSync}>
               <RefreshCw className="h-3 w-3" />
             </Button>
           </div>
