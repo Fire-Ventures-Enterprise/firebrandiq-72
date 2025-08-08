@@ -30,19 +30,17 @@ export interface GenerateContentRequest {
 export class ContentGenerationService {
   private static async callEdgeFunction(functionName: string, body: any): Promise<any> {
     try {
-      const response = await fetch(`/api/${functionName}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
+      const { supabase } = await import('@/integrations/supabase/client');
+      
+      const { data, error } = await supabase.functions.invoke(functionName, {
+        body,
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (error) {
+        throw new Error(`Edge function error: ${error.message}`);
       }
 
-      return await response.json();
+      return data;
     } catch (error) {
       console.error(`Error calling ${functionName}:`, error);
       throw error;
