@@ -74,7 +74,7 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-lg font-bold text-primary px-4 py-6">
-            {!collapsed && "BrandBuilder Pro"}
+            {!collapsed && "BrandIQ"}
           </SidebarGroupLabel>
           
           {navigationSections.map((section) => (
