@@ -14,6 +14,9 @@ import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import Content from "./pages/Content";
+import ContentGenerator from "./pages/ContentGenerator";
+import Campaigns from "./pages/Campaigns";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +48,15 @@ const App = () => (
           </Route>
           <Route path="/competitors" element={<AppLayout />}>
             <Route index element={<Competitors />} />
+          </Route>
+          <Route path="/content" element={<AppLayout />}>
+            <Route index element={<Content />} />
+          </Route>
+          <Route path="/content/generator" element={<AppLayout />}>
+            <Route index element={<ContentGenerator />} />
+          </Route>
+          <Route path="/campaigns" element={<AppLayout />}>
+            <Route index element={<Campaigns />} />
           </Route>
           <Route path="/reports" element={<AppLayout />}>
             <Route index element={<Reports />} />
