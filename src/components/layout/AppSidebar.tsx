@@ -12,9 +12,11 @@ import {
   PenTool,
   Megaphone,
   Calendar,
-  Palette
+  Palette,
+  ChevronDown
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
+import { useState } from "react";
 
 import {
   Sidebar,
@@ -28,6 +30,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const navigationSections = [
   {
@@ -66,8 +69,10 @@ export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
+  const [selectedPlatform, setSelectedPlatform] = useState("facebook");
 
   const isActive = (path: string) => currentPath === path || currentPath.startsWith(path + "/");
+  const isOnContentGenerator = currentPath === "/content/generator";
 
   return (
     <Sidebar className={collapsed ? "w-14" : "w-64"} collapsible="icon">
@@ -76,6 +81,31 @@ export function AppSidebar() {
           <SidebarGroupLabel className="text-lg font-bold text-primary px-4 py-6">
             {!collapsed && "BrandIQ"}
           </SidebarGroupLabel>
+
+          {/* Platform Selector for Content Generator */}
+          {isOnContentGenerator && !collapsed && (
+            <div className="px-4 pb-4">
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Ad Platform
+                </label>
+                <Select value={selectedPlatform} onValueChange={setSelectedPlatform}>
+                  <SelectTrigger className="h-8">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="facebook">Facebook</SelectItem>
+                    <SelectItem value="instagram">Instagram</SelectItem>
+                    <SelectItem value="twitter">Twitter/X</SelectItem>
+                    <SelectItem value="linkedin">LinkedIn</SelectItem>
+                    <SelectItem value="youtube">YouTube</SelectItem>
+                    <SelectItem value="tiktok">TikTok</SelectItem>
+                    <SelectItem value="google">Google Ads</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
           
           {navigationSections.map((section) => (
             <div key={section.title}>
