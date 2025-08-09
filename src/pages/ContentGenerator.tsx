@@ -19,7 +19,8 @@ export default function ContentGenerator() {
     tone: 'professional' as const,
     topics: '',
     platform: '',
-    contentType: 'social_posts'
+    contentType: 'social_posts',
+    objective: ''
   });
 
   const handleGenerate = async () => {
@@ -131,6 +132,25 @@ export default function ContentGenerator() {
                   <SelectItem value="instagram">Instagram</SelectItem>
                   <SelectItem value="linkedin">LinkedIn</SelectItem>
                   <SelectItem value="facebook">Facebook</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="objective">Ad Objective</Label>
+              <Select value={formData.objective} onValueChange={(value) => setFormData(prev => ({ ...prev, objective: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select ad objective" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="awareness">Brand Awareness</SelectItem>
+                  <SelectItem value="traffic">Drive Website Traffic</SelectItem>
+                  <SelectItem value="engagement">Increase Engagement</SelectItem>
+                  <SelectItem value="leads">Generate Leads</SelectItem>
+                  <SelectItem value="sales">Boost Sales</SelectItem>
+                  <SelectItem value="conversions">Drive Conversions</SelectItem>
+                  <SelectItem value="app_installs">App Installs</SelectItem>
+                  <SelectItem value="video_views">Video Views</SelectItem>
                 </SelectContent>
               </Select>
             </div>
