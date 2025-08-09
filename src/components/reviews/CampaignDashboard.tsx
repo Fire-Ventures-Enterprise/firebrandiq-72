@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReviewCampaign, ReviewRequest } from "@/types/reviews";
 import { Play, Pause, MoreHorizontal, Users, Send, CheckCircle, XCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock data for demonstration
 const mockCampaigns: ReviewCampaign[] = [
@@ -64,6 +65,21 @@ export function CampaignDashboard() {
   const [campaigns] = useState<ReviewCampaign[]>(mockCampaigns);
   const [requests] = useState<ReviewRequest[]>(mockRequests);
   const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const handleManageCampaign = (campaignId: string) => {
+    toast({
+      title: "Campaign Management",
+      description: "Opening campaign management interface...",
+    });
+  };
+
+  const handleCampaignOptions = (campaignId: string) => {
+    toast({
+      title: "Campaign Options",
+      description: "Opening campaign settings and options...",
+    });
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -157,11 +173,11 @@ export function CampaignDashboard() {
                     </div>
 
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline" className="flex-1">
+                      <Button size="sm" variant="outline" className="flex-1" onClick={() => handleManageCampaign(campaign.id)}>
                         <Play className="h-3 w-3 mr-1" />
                         Manage
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => handleCampaignOptions(campaign.id)}>
                         <MoreHorizontal className="h-3 w-3" />
                       </Button>
                     </div>

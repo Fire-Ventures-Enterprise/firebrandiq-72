@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Search, Filter, ExternalLink, MessageSquare, Calendar, Brain, TrendingUp, AlertTriangle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { AIService, BrandMention } from "@/services/aiService";
+import { useInteractiveActions } from "@/hooks/useInteractiveActions";
+import { useToast } from "@/hooks/use-toast";
 
 const mockMentions = [
   {
@@ -76,6 +78,8 @@ export default function Mentions() {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [sentimentSummary, setSentimentSummary] = useState<any>(null);
+  const { handleReply, handleSave, handleExternalLink } = useInteractiveActions();
+  const { toast } = useToast();
 
   useEffect(() => {
     loadSentimentSummary();
@@ -100,10 +104,23 @@ export default function Mentions() {
   const analyzeMentionSentiment = async (mentionText: string) => {
     setLoading(true);
     try {
+      toast({
+        title: "AI Analysis Starting",
+        description: "Analyzing mention sentiment...",
+      });
       const sentiment = await AIService.analyzeSentiment(mentionText);
+      toast({
+        title: "Analysis Complete",
+        description: "Sentiment analysis has been completed successfully",
+      });
       console.log('Sentiment analysis:', sentiment);
     } catch (error) {
       console.error('Failed to analyze sentiment:', error);
+      toast({
+        title: "Analysis Failed",
+        description: "Unable to complete sentiment analysis",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -125,11 +142,11 @@ export default function Mentions() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => analyzeMentionSentiment("Overall brand sentiment analysis")}>
             <Brain className="h-4 w-4 mr-2" />
             AI Analysis
           </Button>
-          <Button>
+          <Button onClick={() => setSearchQuery("")}>
             <Search className="h-4 w-4 mr-2" />
             Search New
           </Button>
@@ -191,11 +208,11 @@ export default function Mentions() {
                 className="w-full"
               />
             </div>
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => setSearchQuery("")}>
               <Filter className="h-4 w-4 mr-2" />
               Filters
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => analyzeMentionSentiment("Generate insights from all mentions")}>
               <Brain className="h-4 w-4 mr-2" />
               AI Insights
             </Button>
@@ -236,7 +253,7 @@ export default function Mentions() {
                     <Badge className={getSentimentColor(mention.sentiment)}>
                       {mention.sentiment}
                     </Badge>
-                    <Button variant="ghost" size="sm">
+                    <Button variant="ghost" size="sm" onClick={() => handleExternalLink(mention.source)}>
                       <ExternalLink className="h-4 w-4" />
                     </Button>
                   </div>
@@ -268,10 +285,10 @@ export default function Mentions() {
                       <Brain className="h-3 w-3 mr-1" />
                       Analyze
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={() => handleReply(mention.id)}>
                       Reply
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={() => handleSave(mention.id)}>
                       Save
                     </Button>
                   </div>

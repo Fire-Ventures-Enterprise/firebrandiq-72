@@ -201,7 +201,11 @@ export default function ContentGenerator() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Generated Posts ({generatedContent.length})</h3>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => {
+                  const allContent = generatedContent.map(c => c.content).join('\n\n');
+                  copyToClipboard(allContent);
+                  toast.success("All content exported to clipboard!");
+                }}>
                   <Download className="h-4 w-4 mr-2" />
                   Export All
                 </Button>
