@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -6,8 +7,67 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Bell, Key, User, CreditCard, Globe } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Settings() {
+  const { toast } = useToast();
+  const [profile, setProfile] = useState({
+    name: "John Doe",
+    email: "john@example.com",
+    company: "TechStartup Inc"
+  });
+  
+  const [notifications, setNotifications] = useState({
+    emailAlerts: true,
+    brandMentions: true,
+    weeklyReports: false,
+    aiRecommendations: true
+  });
+
+  const handleSaveProfile = () => {
+    toast({
+      title: "Profile Updated",
+      description: "Your profile information has been saved successfully.",
+    });
+  };
+
+  const handleToggleNotification = (key: keyof typeof notifications) => {
+    setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
+    toast({
+      title: "Notification Setting Updated",
+      description: "Your notification preferences have been updated.",
+    });
+  };
+
+  const handleManageIntegrations = () => {
+    toast({
+      title: "Opening Integrations",
+      description: "Redirecting to API integrations management...",
+    });
+  };
+
+  const handleViewInvoices = () => {
+    toast({
+      title: "Loading Invoices",
+      description: "Opening your billing history...",
+    });
+  };
+
+  const handleUpgradePlan = () => {
+    toast({
+      title: "Upgrade Plan",
+      description: "Redirecting to plan upgrade options...",
+    });
+  };
+
+  const handleDeleteAccount = () => {
+    toast({
+      title: "Account Deletion",
+      description: "This action requires additional confirmation.",
+      variant: "destructive"
+    });
+  };
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -31,17 +91,30 @@ export default function Settings() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input id="name" defaultValue="John Doe" />
+              <Input 
+                id="name" 
+                value={profile.name}
+                onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" defaultValue="john@example.com" />
+              <Input 
+                id="email" 
+                type="email" 
+                value={profile.email}
+                onChange={(e) => setProfile(prev => ({ ...prev, email: e.target.value }))}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="company">Company</Label>
-              <Input id="company" defaultValue="TechStartup Inc" />
+              <Input 
+                id="company" 
+                value={profile.company}
+                onChange={(e) => setProfile(prev => ({ ...prev, company: e.target.value }))}
+              />
             </div>
-            <Button size="sm">Save Changes</Button>
+            <Button size="sm" onClick={handleSaveProfile}>Save Changes</Button>
           </CardContent>
         </Card>
 
@@ -62,7 +135,10 @@ export default function Settings() {
                   Receive email notifications for important updates
                 </p>
               </div>
-              <Switch defaultChecked />
+              <Switch 
+                checked={notifications.emailAlerts}
+                onCheckedChange={() => handleToggleNotification('emailAlerts')}
+              />
             </div>
             
             <div className="flex items-center justify-between">
@@ -72,7 +148,10 @@ export default function Settings() {
                   Get notified when your brand is mentioned
                 </p>
               </div>
-              <Switch defaultChecked />
+              <Switch 
+                checked={notifications.brandMentions}
+                onCheckedChange={() => handleToggleNotification('brandMentions')}
+              />
             </div>
             
             <div className="flex items-center justify-between">
@@ -82,7 +161,10 @@ export default function Settings() {
                   Automatic weekly performance reports
                 </p>
               </div>
-              <Switch />
+              <Switch 
+                checked={notifications.weeklyReports}
+                onCheckedChange={() => handleToggleNotification('weeklyReports')}
+              />
             </div>
             
             <div className="flex items-center justify-between">
@@ -92,7 +174,10 @@ export default function Settings() {
                   Get AI-powered insights and recommendations
                 </p>
               </div>
-              <Switch defaultChecked />
+              <Switch 
+                checked={notifications.aiRecommendations}
+                onCheckedChange={() => handleToggleNotification('aiRecommendations')}
+              />
             </div>
           </CardContent>
         </Card>
@@ -133,7 +218,7 @@ export default function Settings() {
               </div>
             </div>
             
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleManageIntegrations}>
               Manage Integrations
             </Button>
           </CardContent>
@@ -168,10 +253,10 @@ export default function Settings() {
             </div>
             
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={handleViewInvoices}>
                 View Invoices
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={handleUpgradePlan}>
                 Upgrade Plan
               </Button>
             </div>
@@ -194,7 +279,7 @@ export default function Settings() {
                 Permanently delete your account and all associated data
               </div>
             </div>
-            <Button variant="destructive" size="sm">
+            <Button variant="destructive" size="sm" onClick={handleDeleteAccount}>
               Delete Account
             </Button>
           </div>
