@@ -11,6 +11,7 @@ import CrisisAlert from "@/components/dashboard/CrisisAlert";
 import MentionsMap from "@/components/dashboard/MentionsMap";
 import TrendingTopics from "@/components/dashboard/TrendingTopics";
 import InfluencerMentions from "@/components/dashboard/InfluencerMentions";
+import { SmartDashboard } from "@/components/psychology/SmartDashboard";
 
 // Mock sparkline data
 const generateSparklineData = () => 
@@ -20,9 +21,61 @@ const generateSparklineData = () =>
   }));
 
 export default function Dashboard() {
+  // Mock data for psychology engine
+  const mockInsights = [
+    {
+      id: '1',
+      title: 'Sentiment Trend Alert',
+      content: 'Brand sentiment has improved by 15% over the last week, driven by positive customer reviews and social media engagement.',
+      type: 'sentiment_change',
+      importance: 85,
+      urgency: 'high',
+      sentiment: 'positive',
+      complexity: 'medium',
+      dataPoints: [
+        { label: 'Positive Mentions', value: '847' },
+        { label: 'Sentiment Score', value: '72%' },
+        { label: 'Engagement Rate', value: '4.2%' },
+        { label: 'Reach', value: '2.4M' }
+      ]
+    },
+    {
+      id: '2',
+      title: 'Competitor Analysis',
+      content: 'Your main competitor launched a new campaign that is gaining traction. Consider developing a response strategy.',
+      type: 'competitor_insight',
+      importance: 70,
+      urgency: 'medium',
+      sentiment: 'neutral',
+      complexity: 'high',
+      dataPoints: [
+        { label: 'Competitor Mentions', value: '432' },
+        { label: 'Share of Voice', value: '28%' },
+        { label: 'Engagement Gap', value: '-12%' }
+      ]
+    },
+    {
+      id: '3',
+      title: 'Trending Topic Opportunity',
+      content: 'There is a trending topic in your industry that aligns with your brand values. Consider joining the conversation.',
+      type: 'trend_analysis',
+      importance: 65,
+      urgency: 'low',
+      sentiment: 'positive',
+      complexity: 'low'
+    }
+  ];
+
   return (
     <div className="space-y-8">
       <DashboardHeader />
+
+      {/* Psychology-Enhanced Dashboard */}
+      <SmartDashboard 
+        userId="current-user"
+        rawInsights={mockInsights}
+        className="mb-6"
+      />
 
       {/* Crisis Alert */}
       <CrisisAlert
