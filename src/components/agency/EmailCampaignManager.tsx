@@ -27,7 +27,9 @@ export const EmailCampaignManager: React.FC = () => {
     content: '',
     is_bulk: false,
     client_ids: [] as string[],
-    scheduled_at: ''
+    scheduled_at: '',
+    status: 'draft' as const,
+    metrics: {}
   });
 
   useEffect(() => {
@@ -71,7 +73,9 @@ export const EmailCampaignManager: React.FC = () => {
         content: '',
         is_bulk: false,
         client_ids: [],
-        scheduled_at: ''
+        scheduled_at: '',
+        status: 'draft' as const,
+        metrics: {}
       });
       await loadData();
     } catch (error) {

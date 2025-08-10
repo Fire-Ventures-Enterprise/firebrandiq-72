@@ -27,16 +27,16 @@ export class AgencyService {
     return data || [];
   }
 
-  static async createClient(clientData: Partial<Client>): Promise<Client> {
+  static async createClient(clientData: Omit<Client, 'id' | 'created_at' | 'updated_at' | 'agency_id'>): Promise<Client> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
     const { data, error } = await supabase
       .from('clients')
-      .insert([{
+      .insert({
         ...clientData,
         agency_id: user.id
-      }])
+      })
       .select()
       .single();
 
@@ -126,17 +126,17 @@ export class AgencyService {
     return (data || []) as EmailCampaign[];
   }
 
-  static async createEmailCampaign(campaignData: Partial<EmailCampaign>): Promise<EmailCampaign> {
+  static async createEmailCampaign(campaignData: Omit<EmailCampaign, 'id' | 'created_at' | 'updated_at' | 'agency_id' | 'created_by' | 'sent_at'>): Promise<EmailCampaign> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
     const { data, error } = await supabase
       .from('email_campaigns')
-      .insert([{
+      .insert({
         ...campaignData,
         agency_id: user.id,
         created_by: user.id
-      }])
+      })
       .select()
       .single();
 
@@ -267,16 +267,16 @@ export class AgencyService {
     return (data || []) as ClientCampaign[];
   }
 
-  static async createCampaign(campaignData: Partial<ClientCampaign>): Promise<ClientCampaign> {
+  static async createCampaign(campaignData: Omit<ClientCampaign, 'id' | 'created_at' | 'updated_at' | 'created_by'>): Promise<ClientCampaign> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
     const { data, error } = await supabase
       .from('client_campaigns')
-      .insert([{
+      .insert({
         ...campaignData,
         created_by: user.id
-      }])
+      })
       .select()
       .single();
 
