@@ -79,7 +79,7 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-lg font-bold text-primary px-4 py-6">
-            {!collapsed && "BrandIQ"}
+            {!collapsed && "FirebrandIQ"}
           </SidebarGroupLabel>
 
           {/* Platform Selector for Content Generator */}

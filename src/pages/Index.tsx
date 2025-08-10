@@ -15,7 +15,7 @@ const Index = () => {
             AI-Powered Brand Intelligence
           </Badge>
           <h1 className="text-6xl font-bold tracking-tight">
-            BrandIQ
+            FirebrandIQ
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Transform your brand management with AI-driven insights, sentiment analysis, and social media optimization
