@@ -14,6 +14,317 @@ export type Database = {
   }
   public: {
     Tables: {
+      agency_team_members: {
+        Row: {
+          agency_id: string
+          created_at: string
+          id: string
+          invited_at: string | null
+          invited_by: string | null
+          is_active: boolean
+          joined_at: string | null
+          permissions: string[] | null
+          role: Database["public"]["Enums"]["agency_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agency_id: string
+          created_at?: string
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          is_active?: boolean
+          joined_at?: string | null
+          permissions?: string[] | null
+          role?: Database["public"]["Enums"]["agency_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agency_id?: string
+          created_at?: string
+          id?: string
+          invited_at?: string | null
+          invited_by?: string | null
+          is_active?: boolean
+          joined_at?: string | null
+          permissions?: string[] | null
+          role?: Database["public"]["Enums"]["agency_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_team_members_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agency_team_members_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agency_team_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_analytics: {
+        Row: {
+          ad_spend: number | null
+          clicks: number | null
+          client_id: string
+          conversions: number | null
+          created_at: string
+          date: string
+          engagement_rate: number | null
+          id: string
+          impressions: number | null
+          leads: number | null
+          metrics: Json | null
+          revenue: number | null
+          roi: number | null
+          updated_at: string
+        }
+        Insert: {
+          ad_spend?: number | null
+          clicks?: number | null
+          client_id: string
+          conversions?: number | null
+          created_at?: string
+          date: string
+          engagement_rate?: number | null
+          id?: string
+          impressions?: number | null
+          leads?: number | null
+          metrics?: Json | null
+          revenue?: number | null
+          roi?: number | null
+          updated_at?: string
+        }
+        Update: {
+          ad_spend?: number | null
+          clicks?: number | null
+          client_id?: string
+          conversions?: number | null
+          created_at?: string
+          date?: string
+          engagement_rate?: number | null
+          id?: string
+          impressions?: number | null
+          leads?: number | null
+          metrics?: Json | null
+          revenue?: number | null
+          roi?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_analytics_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_campaigns: {
+        Row: {
+          budget: number | null
+          client_id: string
+          created_at: string
+          created_by: string
+          end_date: string | null
+          id: string
+          metrics: Json | null
+          name: string
+          start_date: string | null
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          budget?: number | null
+          client_id: string
+          created_at?: string
+          created_by: string
+          end_date?: string | null
+          id?: string
+          metrics?: Json | null
+          name: string
+          start_date?: string | null
+          status?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          budget?: number | null
+          client_id?: string
+          created_at?: string
+          created_by?: string
+          end_date?: string | null
+          id?: string
+          metrics?: Json | null
+          name?: string
+          start_date?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_campaigns_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_campaigns_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          agency_id: string
+          company_name: string | null
+          contract_end_date: string | null
+          contract_start_date: string | null
+          created_at: string
+          email: string | null
+          id: string
+          industry: string | null
+          monthly_budget: number | null
+          name: string
+          notes: string | null
+          phone: string | null
+          status: Database["public"]["Enums"]["client_status"]
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          agency_id: string
+          company_name?: string | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          industry?: string | null
+          monthly_budget?: number | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          status?: Database["public"]["Enums"]["client_status"]
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          agency_id?: string
+          company_name?: string | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          industry?: string | null
+          monthly_budget?: number | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          status?: Database["public"]["Enums"]["client_status"]
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_campaigns: {
+        Row: {
+          agency_id: string
+          client_ids: string[] | null
+          content: string
+          created_at: string
+          created_by: string
+          id: string
+          is_bulk: boolean
+          metrics: Json | null
+          name: string
+          scheduled_at: string | null
+          sent_at: string | null
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          agency_id: string
+          client_ids?: string[] | null
+          content: string
+          created_at?: string
+          created_by: string
+          id?: string
+          is_bulk?: boolean
+          metrics?: Json | null
+          name: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string
+          client_ids?: string[] | null
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_bulk?: boolean
+          metrics?: Json | null
+          name?: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_campaigns_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_campaigns_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -47,6 +358,7 @@ export type Database = {
       social_connections: {
         Row: {
           access_token: string | null
+          client_id: string | null
           created_at: string
           id: string
           is_active: boolean
@@ -60,6 +372,7 @@ export type Database = {
         }
         Insert: {
           access_token?: string | null
+          client_id?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
@@ -73,6 +386,7 @@ export type Database = {
         }
         Update: {
           access_token?: string | null
+          client_id?: string | null
           created_at?: string
           id?: string
           is_active?: boolean
@@ -84,7 +398,15 @@ export type Database = {
           user_id?: string
           username?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "social_connections_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -94,7 +416,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      agency_role: "owner" | "admin" | "manager" | "analyst" | "member"
+      client_status: "active" | "inactive" | "trial" | "suspended"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -221,6 +544,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      agency_role: ["owner", "admin", "manager", "analyst", "member"],
+      client_status: ["active", "inactive", "trial", "suspended"],
+    },
   },
 } as const
