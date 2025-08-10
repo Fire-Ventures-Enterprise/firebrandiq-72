@@ -4,7 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Instagram, Twitter, Linkedin, TrendingUp, Users, Heart, BarChart3, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { SocialMetricsService, SocialMetrics, SocialAlert } from "@/services/socialMetricsService";
+import { UserSocialService, SocialMetricsData } from "@/services/userSocialService";
 import SocialMetricsCard from "@/components/social/SocialMetricsCard";
+import { useToast } from "@/hooks/use-toast";
 
 const mockSocialAccounts = [
   {
@@ -76,9 +78,11 @@ const mockRecentPosts = [
 ];
 
 export default function Social() {
-  const [socialMetrics, setSocialMetrics] = useState<SocialMetrics[]>([]);
+  const { toast } = useToast();
+  const [socialMetrics, setSocialMetrics] = useState<SocialMetricsData[]>([]);
   const [alerts, setAlerts] = useState<SocialAlert[]>([]);
   const [loading, setLoading] = useState(false);
+  const [userConnections, setUserConnections] = useState<any[]>([]);
 
   useEffect(() => {
     loadSocialData();
@@ -87,23 +91,30 @@ export default function Social() {
   const loadSocialData = async () => {
     try {
       setLoading(true);
-      const [metrics, socialAlerts] = await Promise.all([
-        SocialMetricsService.getAllMetrics(),
-        SocialMetricsService.getAlerts()
+      const [userMetrics, socialAlerts, connections] = await Promise.all([
+        UserSocialService.getAllUserMetrics(),
+        SocialMetricsService.getAlerts(),
+        UserSocialService.getUserConnections()
       ]);
       
-      setSocialMetrics(metrics);
+      setSocialMetrics(userMetrics);
       setAlerts(socialAlerts);
+      setUserConnections(connections);
     } catch (error) {
       console.error('Failed to load social data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load social media data",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleConnectAccount = () => {
-    console.log('Connect social account');
-    // Implement social account connection
+    // Navigate to settings page for social connections
+    window.location.href = '/settings';
   };
 
   const handleOptimize = (platform: string) => {
@@ -189,16 +200,65 @@ export default function Social() {
           </Badge>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {socialMetrics.map((metrics) => (
-            <SocialMetricsCard
-              key={metrics.platform}
-              metrics={metrics}
-              onViewDetails={() => console.log('View details for', metrics.platform)}
-              onOptimize={() => handleOptimize(metrics.platform)}
-            />
-          ))}
-        </div>
+        {socialMetrics.length > 0 ? (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {socialMetrics.map((metrics) => (
+              <Card key={metrics.platform} className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">{metrics.platform}</h3>
+                  <Badge variant="outline">Connected</Badge>
+                </div>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Followers</p>
+                      <p className="text-2xl font-bold">{metrics.followers.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Engagement</p>
+                      <p className="text-2xl font-bold">{metrics.engagement.rate.toFixed(1)}%</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div>
+                      <p className="text-lg font-semibold">{metrics.engagement.likes}</p>
+                      <p className="text-xs text-muted-foreground">Likes</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold">{metrics.engagement.comments}</p>
+                      <p className="text-xs text-muted-foreground">Comments</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold">{metrics.engagement.shares}</p>
+                      <p className="text-xs text-muted-foreground">Shares</p>
+                    </div>
+                  </div>
+                  <div className="pt-2">
+                    <Button variant="outline" size="sm" className="w-full" onClick={() => handleOptimize(metrics.platform)}>
+                      View Analytics
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card className="p-8 text-center">
+            <div className="space-y-4">
+              <div className="mx-auto w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+                <Plus className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">No Social Accounts Connected</h3>
+                <p className="text-muted-foreground">Connect your social media accounts to start tracking analytics</p>
+              </div>
+              <Button onClick={handleConnectAccount}>
+                <Plus className="h-4 w-4 mr-2" />
+                Connect Your First Account
+              </Button>
+            </div>
+          </Card>
+        )}
       </div>
 
       {/* Recent Posts */}

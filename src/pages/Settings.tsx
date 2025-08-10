@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Bell, Key, User, CreditCard, Globe } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import SocialConnectionsManager from "@/components/social/SocialConnectionsManager";
 
 export default function Settings() {
   const { toast } = useToast();
@@ -182,47 +183,10 @@ export default function Settings() {
           </CardContent>
         </Card>
 
-        {/* API Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Key className="h-5 w-5" />
-              API Keys
-            </CardTitle>
-            <CardDescription>Manage your API integrations</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div>
-                  <div className="font-medium">OpenAI API</div>
-                  <div className="text-sm text-muted-foreground">For AI insights generation</div>
-                </div>
-                <Badge variant="outline">Connected</Badge>
-              </div>
-              
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div>
-                  <div className="font-medium">Twitter API</div>
-                  <div className="text-sm text-muted-foreground">Social media monitoring</div>
-                </div>
-                <Badge variant="secondary">Not Connected</Badge>
-              </div>
-              
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div>
-                  <div className="font-medium">Instagram API</div>
-                  <div className="text-sm text-muted-foreground">Instagram analytics</div>
-                </div>
-                <Badge variant="outline">Connected</Badge>
-              </div>
-            </div>
-            
-            <Button variant="outline" size="sm" onClick={handleManageIntegrations}>
-              Manage Integrations
-            </Button>
-          </CardContent>
-        </Card>
+        {/* Social Media Connections */}
+        <div className="md:col-span-2">
+          <SocialConnectionsManager />
+        </div>
 
         {/* Billing */}
         <Card>
