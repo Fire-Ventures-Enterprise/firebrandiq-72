@@ -1,28 +1,70 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Key, User, CreditCard, Globe } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Save, User, Bell, Shield, Database, Palette, Globe, Key, Mail, Phone, MapPin, Building } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import SocialConnectionsManager from "@/components/social/SocialConnectionsManager";
 
 export default function Settings() {
   const { toast } = useToast();
-  const [profile, setProfile] = useState({
-    name: "John Doe",
-    email: "john@example.com",
-    company: "TechStartup Inc"
-  });
   
+  // Profile Settings
+  const [profile, setProfile] = useState({
+    firstName: "John",
+    lastName: "Doe",
+    email: "john.doe@company.com",
+    phone: "+1 (555) 123-4567",
+    company: "Company Inc.",
+    location: "San Francisco, CA",
+    bio: "Brand marketing professional with 10+ years of experience in digital marketing and brand management.",
+    avatar: ""
+  });
+
+  // Notification Settings
   const [notifications, setNotifications] = useState({
-    emailAlerts: true,
-    brandMentions: true,
-    weeklyReports: false,
-    aiRecommendations: true
+    emailReports: true,
+    mentionAlerts: true,
+    sentimentAlerts: true,
+    competitorAlerts: false,
+    weeklyDigest: true,
+    realTimeAlerts: false,
+    pushNotifications: true,
+    smsAlerts: false
+  });
+
+  // API Settings
+  const [apiKeys, setApiKeys] = useState({
+    twitter: "sk-**********************",
+    facebook: "fb-**********************", 
+    instagram: "",
+    linkedin: "",
+    google: "goog-********************",
+    openai: ""
+  });
+
+  // Security Settings
+  const [security, setSecurity] = useState({
+    twoFactor: false,
+    sessionTimeout: "24",
+    loginNotifications: true,
+    deviceTracking: true
+  });
+
+  // App Settings
+  const [appSettings, setAppSettings] = useState({
+    theme: "system",
+    language: "en",
+    timezone: "America/Los_Angeles",
+    dateFormat: "MM/dd/yyyy",
+    currency: "USD"
   });
 
   const handleSaveProfile = () => {
@@ -32,40 +74,39 @@ export default function Settings() {
     });
   };
 
-  const handleToggleNotification = (key: keyof typeof notifications) => {
-    setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
+  const handleSaveNotifications = () => {
     toast({
-      title: "Notification Setting Updated",
-      description: "Your notification preferences have been updated.",
+      title: "Notifications Updated",
+      description: "Your notification preferences have been saved.",
     });
   };
 
-  const handleManageIntegrations = () => {
+  const handleSaveApiKey = (platform: string, key: string) => {
+    setApiKeys(prev => ({ ...prev, [platform]: key }));
     toast({
-      title: "Opening Integrations",
-      description: "Redirecting to API integrations management...",
+      title: "API Key Updated",
+      description: `${platform} API key has been saved securely.`,
     });
   };
 
-  const handleViewInvoices = () => {
+  const handleTestApiKey = (platform: string) => {
     toast({
-      title: "Loading Invoices",
-      description: "Opening your billing history...",
+      title: "Testing API Connection",
+      description: `Verifying ${platform} API key...`,
     });
   };
 
-  const handleUpgradePlan = () => {
+  const handleSaveSecurity = () => {
     toast({
-      title: "Upgrade Plan",
-      description: "Redirecting to plan upgrade options...",
+      title: "Security Settings Updated",
+      description: "Your security preferences have been saved.",
     });
   };
 
-  const handleDeleteAccount = () => {
+  const handleSaveAppSettings = () => {
     toast({
-      title: "Account Deletion",
-      description: "This action requires additional confirmation.",
-      variant: "destructive"
+      title: "App Settings Updated",
+      description: "Your application preferences have been saved.",
     });
   };
 
@@ -73,182 +114,449 @@ export default function Settings() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+        <h1 className="text-3xl font-bold">Settings</h1>
         <p className="text-muted-foreground">
-          Manage your account preferences and configuration
+          Manage your account, preferences, and integrations
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Profile Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Profile
-            </CardTitle>
-            <CardDescription>Manage your personal information</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input 
-                id="name" 
-                value={profile.name}
-                onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input 
-                id="email" 
-                type="email" 
-                value={profile.email}
-                onChange={(e) => setProfile(prev => ({ ...prev, email: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="company">Company</Label>
-              <Input 
-                id="company" 
-                value={profile.company}
-                onChange={(e) => setProfile(prev => ({ ...prev, company: e.target.value }))}
-              />
-            </div>
-            <Button size="sm" onClick={handleSaveProfile}>Save Changes</Button>
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="profile" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          <TabsTrigger value="integrations">Integrations</TabsTrigger>
+          <TabsTrigger value="security">Security</TabsTrigger>
+          <TabsTrigger value="app">App Settings</TabsTrigger>
+        </TabsList>
 
-        {/* Notification Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="h-5 w-5" />
-              Notifications
-            </CardTitle>
-            <CardDescription>Configure your notification preferences</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Email Alerts</Label>
-                <p className="text-sm text-muted-foreground">
-                  Receive email notifications for important updates
-                </p>
+        <TabsContent value="profile" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <User className="h-5 w-5 mr-2" />
+                Profile Information
+              </CardTitle>
+              <CardDescription>
+                Update your personal information and profile details
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center space-x-6">
+                <Avatar className="h-24 w-24">
+                  <AvatarImage src={profile.avatar} />
+                  <AvatarFallback className="text-lg">
+                    {profile.firstName[0]}{profile.lastName[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <Button variant="outline">Change Avatar</Button>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    JPG, PNG or GIF. Max size 2MB.
+                  </p>
+                </div>
               </div>
-              <Switch 
-                checked={notifications.emailAlerts}
-                onCheckedChange={() => handleToggleNotification('emailAlerts')}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Brand Mentions</Label>
-                <p className="text-sm text-muted-foreground">
-                  Get notified when your brand is mentioned
-                </p>
-              </div>
-              <Switch 
-                checked={notifications.brandMentions}
-                onCheckedChange={() => handleToggleNotification('brandMentions')}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Weekly Reports</Label>
-                <p className="text-sm text-muted-foreground">
-                  Automatic weekly performance reports
-                </p>
-              </div>
-              <Switch 
-                checked={notifications.weeklyReports}
-                onCheckedChange={() => handleToggleNotification('weeklyReports')}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>AI Recommendations</Label>
-                <p className="text-sm text-muted-foreground">
-                  Get AI-powered insights and recommendations
-                </p>
-              </div>
-              <Switch 
-                checked={notifications.aiRecommendations}
-                onCheckedChange={() => handleToggleNotification('aiRecommendations')}
-              />
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Social Media Connections */}
-        <div className="md:col-span-2">
-          <SocialConnectionsManager />
-        </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    id="firstName"
+                    value={profile.firstName}
+                    onChange={(e) => setProfile(prev => ({ ...prev, firstName: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    value={profile.lastName}
+                    onChange={(e) => setProfile(prev => ({ ...prev, lastName: e.target.value }))}
+                  />
+                </div>
+              </div>
 
-        {/* Billing */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5" />
-              Billing & Subscription
-            </CardTitle>
-            <CardDescription>Manage your subscription and billing</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-4 border rounded-lg bg-primary/5">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      className="pl-10"
+                      value={profile.email}
+                      onChange={(e) => setProfile(prev => ({ ...prev, email: e.target.value }))}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="phone">Phone</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="phone"
+                      className="pl-10"
+                      value={profile.phone}
+                      onChange={(e) => setProfile(prev => ({ ...prev, phone: e.target.value }))}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="company">Company</Label>
+                  <div className="relative">
+                    <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="company"
+                      className="pl-10"
+                      value={profile.company}
+                      onChange={(e) => setProfile(prev => ({ ...prev, company: e.target.value }))}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="location">Location</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="location"
+                      className="pl-10"
+                      value={profile.location}
+                      onChange={(e) => setProfile(prev => ({ ...prev, location: e.target.value }))}
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div>
-                <div className="font-semibold">Pro Plan</div>
-                <div className="text-sm text-muted-foreground">$99/month • Next billing: Feb 15, 2024</div>
+                <Label htmlFor="bio">Bio</Label>
+                <Textarea
+                  id="bio"
+                  placeholder="Tell us about yourself..."
+                  value={profile.bio}
+                  onChange={(e) => setProfile(prev => ({ ...prev, bio: e.target.value }))}
+                />
               </div>
-              <Badge>Active</Badge>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Usage this month</span>
-                <span>2,450 / 5,000 API calls</span>
-              </div>
-              <div className="w-full bg-secondary rounded-full h-2">
-                <div className="bg-primary h-2 rounded-full" style={{ width: '49%' }}></div>
-              </div>
-            </div>
-            
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handleViewInvoices}>
-                View Invoices
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleUpgradePlan}>
-                Upgrade Plan
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
-      {/* Danger Zone */}
-      <Card className="border-destructive">
-        <CardHeader>
-          <CardTitle className="text-destructive">Danger Zone</CardTitle>
-          <CardDescription>Irreversible and destructive actions</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Separator />
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="font-medium">Delete Account</div>
-              <div className="text-sm text-muted-foreground">
-                Permanently delete your account and all associated data
+              <Button onClick={handleSaveProfile}>
+                <Save className="h-4 w-4 mr-2" />
+                Save Profile
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="notifications" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Bell className="h-5 w-5 mr-2" />
+                Notification Preferences
+              </CardTitle>
+              <CardDescription>
+                Choose what notifications you want to receive
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <h4 className="font-medium">Email Notifications</h4>
+                <div className="space-y-4">
+                  {[
+                    { key: 'emailReports', label: 'Email Reports', desc: 'Receive scheduled reports via email' },
+                    { key: 'mentionAlerts', label: 'Mention Alerts', desc: 'Get notified when your brand is mentioned' },
+                    { key: 'sentimentAlerts', label: 'Sentiment Alerts', desc: 'Alerts for significant sentiment changes' },
+                    { key: 'competitorAlerts', label: 'Competitor Alerts', desc: 'Updates on competitor activities' },
+                    { key: 'weeklyDigest', label: 'Weekly Digest', desc: 'Summary of the week\'s brand activity' }
+                  ].map((item) => (
+                    <div key={item.key} className="flex items-center justify-between">
+                      <div>
+                        <div className="font-medium">{item.label}</div>
+                        <div className="text-sm text-muted-foreground">{item.desc}</div>
+                      </div>
+                      <Switch
+                        checked={notifications[item.key as keyof typeof notifications] as boolean}
+                        onCheckedChange={(checked) => 
+                          setNotifications(prev => ({ ...prev, [item.key]: checked }))
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-            <Button variant="destructive" size="sm" onClick={handleDeleteAccount}>
-              Delete Account
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+
+              <Separator />
+
+              <div className="space-y-4">
+                <h4 className="font-medium">Real-time Notifications</h4>
+                <div className="space-y-4">
+                  {[
+                    { key: 'realTimeAlerts', label: 'Real-time Alerts', desc: 'Immediate notifications for urgent mentions' },
+                    { key: 'pushNotifications', label: 'Push Notifications', desc: 'Browser push notifications' },
+                    { key: 'smsAlerts', label: 'SMS Alerts', desc: 'Text message alerts for critical issues' }
+                  ].map((item) => (
+                    <div key={item.key} className="flex items-center justify-between">
+                      <div>
+                        <div className="font-medium">{item.label}</div>
+                        <div className="text-sm text-muted-foreground">{item.desc}</div>
+                      </div>
+                      <Switch
+                        checked={notifications[item.key as keyof typeof notifications] as boolean}
+                        onCheckedChange={(checked) => 
+                          setNotifications(prev => ({ ...prev, [item.key]: checked }))
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Button onClick={handleSaveNotifications}>
+                <Save className="h-4 w-4 mr-2" />
+                Save Preferences
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="integrations" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Database className="h-5 w-5 mr-2" />
+                API Integrations
+              </CardTitle>
+              <CardDescription>
+                Connect your social media platforms and configure API keys
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {Object.entries(apiKeys).map(([platform, key]) => (
+                <div key={platform} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="capitalize font-medium">{platform} API Key</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Connect your {platform} account for data collection
+                      </p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      {key && (
+                        <Badge variant={key.includes('****') ? 'default' : 'secondary'}>
+                          {key.includes('****') ? 'Connected' : 'Configured'}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex space-x-2">
+                    <div className="relative flex-1">
+                      <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="password"
+                        className="pl-10"
+                        placeholder={`Enter ${platform} API key`}
+                        value={key}
+                        onChange={(e) => setApiKeys(prev => ({ ...prev, [platform]: e.target.value }))}
+                      />
+                    </div>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleTestApiKey(platform)}
+                    >
+                      Test
+                    </Button>
+                    <Button
+                      onClick={() => handleSaveApiKey(platform, apiKeys[platform as keyof typeof apiKeys])}
+                    >
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="security" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Shield className="h-5 w-5 mr-2" />
+                Security Settings
+              </CardTitle>
+              <CardDescription>
+                Manage your account security and privacy settings
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">Two-Factor Authentication</div>
+                    <div className="text-sm text-muted-foreground">
+                      Add an extra layer of security to your account
+                    </div>
+                  </div>
+                  <Switch
+                    checked={security.twoFactor}
+                    onCheckedChange={(checked) => 
+                      setSecurity(prev => ({ ...prev, twoFactor: checked }))
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">Login Notifications</div>
+                    <div className="text-sm text-muted-foreground">
+                      Get notified when someone logs into your account
+                    </div>
+                  </div>
+                  <Switch
+                    checked={security.loginNotifications}
+                    onCheckedChange={(checked) => 
+                      setSecurity(prev => ({ ...prev, loginNotifications: checked }))
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">Device Tracking</div>
+                    <div className="text-sm text-muted-foreground">
+                      Keep track of devices that access your account
+                    </div>
+                  </div>
+                  <Switch
+                    checked={security.deviceTracking}
+                    onCheckedChange={(checked) => 
+                      setSecurity(prev => ({ ...prev, deviceTracking: checked }))
+                    }
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="sessionTimeout">Session Timeout (hours)</Label>
+                  <Select
+                    value={security.sessionTimeout}
+                    onValueChange={(value) => setSecurity(prev => ({ ...prev, sessionTimeout: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 hour</SelectItem>
+                      <SelectItem value="8">8 hours</SelectItem>
+                      <SelectItem value="24">24 hours</SelectItem>
+                      <SelectItem value="168">1 week</SelectItem>
+                      <SelectItem value="never">Never</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <Button onClick={handleSaveSecurity}>
+                <Save className="h-4 w-4 mr-2" />
+                Save Security Settings
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="app" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Palette className="h-5 w-5 mr-2" />
+                Application Settings
+              </CardTitle>
+              <CardDescription>
+                Customize your app experience and preferences
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="theme">Theme</Label>
+                  <Select
+                    value={appSettings.theme}
+                    onValueChange={(value) => setAppSettings(prev => ({ ...prev, theme: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="light">Light</SelectItem>
+                      <SelectItem value="dark">Dark</SelectItem>
+                      <SelectItem value="system">System</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="language">Language</Label>
+                  <Select
+                    value={appSettings.language}
+                    onValueChange={(value) => setAppSettings(prev => ({ ...prev, language: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">English</SelectItem>
+                      <SelectItem value="es">Español</SelectItem>
+                      <SelectItem value="fr">Français</SelectItem>
+                      <SelectItem value="de">Deutsch</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="timezone">Timezone</Label>
+                  <Select
+                    value={appSettings.timezone}
+                    onValueChange={(value) => setAppSettings(prev => ({ ...prev, timezone: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="America/New_York">Eastern Time</SelectItem>
+                      <SelectItem value="America/Chicago">Central Time</SelectItem>
+                      <SelectItem value="America/Denver">Mountain Time</SelectItem>
+                      <SelectItem value="America/Los_Angeles">Pacific Time</SelectItem>
+                      <SelectItem value="UTC">UTC</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="dateFormat">Date Format</Label>
+                  <Select
+                    value={appSettings.dateFormat}
+                    onValueChange={(value) => setAppSettings(prev => ({ ...prev, dateFormat: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="MM/dd/yyyy">MM/dd/yyyy</SelectItem>
+                      <SelectItem value="dd/MM/yyyy">dd/MM/yyyy</SelectItem>
+                      <SelectItem value="yyyy-MM-dd">yyyy-MM-dd</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <Button onClick={handleSaveAppSettings}>
+                <Save className="h-4 w-4 mr-2" />
+                Save App Settings
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

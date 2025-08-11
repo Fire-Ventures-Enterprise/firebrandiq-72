@@ -72,6 +72,7 @@ export function DatePickerWithRange({
             selected={displayDate}
             onSelect={handleDateChange}
             numberOfMonths={2}
+            className="p-3 pointer-events-auto"
           />
         </PopoverContent>
       </Popover>
