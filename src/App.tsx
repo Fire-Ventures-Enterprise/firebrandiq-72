@@ -17,6 +17,8 @@ import NotFound from "./pages/NotFound";
 import Content from "./pages/Content";
 import ContentGenerator from "./pages/ContentGenerator";
 import Campaigns from "./pages/Campaigns";
+import Analytics from "./pages/Analytics";
+import Monitoring from "./pages/Monitoring";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +47,12 @@ const App = () => (
           </Route>
           <Route path="/insights" element={<AppLayout />}>
             <Route index element={<Insights />} />
+          </Route>
+          <Route path="/analytics" element={<AppLayout />}>
+            <Route index element={<Analytics />} />
+          </Route>
+          <Route path="/monitoring" element={<AppLayout />}>
+            <Route index element={<Monitoring />} />
           </Route>
           <Route path="/competitors" element={<AppLayout />}>
             <Route index element={<Competitors />} />

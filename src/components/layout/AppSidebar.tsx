@@ -37,8 +37,10 @@ const navigationSections = [
     title: "Analytics",
     items: [
       { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
+      { title: "Analytics", url: "/analytics", icon: TrendingUp },
       { title: "Social Media", url: "/social", icon: Instagram },
-      { title: "Mentions", url: "/mentions", icon: MessageSquare, badge: "New" },
+      { title: "Monitoring", url: "/monitoring", icon: MessageSquare, badge: "New" },
+      { title: "Mentions", url: "/mentions", icon: MessageSquare },
       { title: "AI Insights", url: "/insights", icon: Bot },
       { title: "Reports", url: "/reports", icon: FileText },
     ]
