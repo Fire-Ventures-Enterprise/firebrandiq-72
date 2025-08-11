@@ -1,4 +1,10 @@
-import { MessageSquare, Users, Heart, TrendingUp } from "lucide-react";
+import { MessageSquare, Users, Heart, TrendingUp, Plus, BarChart3, Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 import MetricCard from "@/components/dashboard/MetricCard";
 import SentimentChart from "@/components/dashboard/SentimentChart";
 import BrandHealthScore from "@/components/dashboard/BrandHealthScore";
@@ -21,6 +27,10 @@ const generateSparklineData = () =>
   }));
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+  
   // Mock data for psychology engine
   const mockInsights = [
     {
@@ -66,9 +76,67 @@ export default function Dashboard() {
     }
   ];
 
+  const handleQuickAction = async (action: string) => {
+    setIsLoading(true);
+    try {
+      toast({
+        title: "Action Started",
+        description: `Executing ${action}...`,
+      });
+      
+      // Simulate action delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      switch (action) {
+        case 'new-campaign':
+          navigate('/campaigns');
+          break;
+        case 'generate-content':
+          navigate('/content');
+          break;
+        case 'monitor-brand':
+          navigate('/monitoring');
+          break;
+        case 'view-analytics':
+          navigate('/analytics');
+          break;
+        default:
+          toast({
+            title: "Action Complete",
+            description: `${action} has been completed successfully.`,
+          });
+      }
+    } catch (error) {
+      toast({
+        title: "Action Failed",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
-      <DashboardHeader />
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Welcome back! Here's what's happening with your brand today.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => navigate('/settings')}>
+            <Settings className="h-4 w-4 mr-2" />
+            Settings
+          </Button>
+          <Button onClick={() => handleQuickAction('new-campaign')} disabled={isLoading}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Campaign
+          </Button>
+        </div>
+      </div>
 
       {/* Psychology-Enhanced Dashboard */}
       <SmartDashboard 

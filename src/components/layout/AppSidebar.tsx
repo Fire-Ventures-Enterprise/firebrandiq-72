@@ -41,7 +41,7 @@ const navigationSections = [
       { title: "Social Media", url: "/social", icon: Instagram },
       { title: "Monitoring", url: "/monitoring", icon: MessageSquare, badge: "New" },
       { title: "Mentions", url: "/mentions", icon: MessageSquare },
-      { title: "AI Insights", url: "/insights", icon: Bot },
+      { title: "Insights", url: "/insights", icon: Bot },
       { title: "Reports", url: "/reports", icon: FileText },
     ]
   },
@@ -60,7 +60,7 @@ const navigationSections = [
     title: "Management",
     items: [
       { title: "Brands", url: "/brands", icon: Building2 },
-      { title: "Competitors", url: "/competitors", icon: Users },
+      { title: "Competitors", url: "/competitors", icon: Target },
       { title: "Settings", url: "/settings", icon: Settings },
     ]
   }
