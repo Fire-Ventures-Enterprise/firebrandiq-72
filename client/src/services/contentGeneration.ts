@@ -28,21 +28,12 @@ export interface GenerateContentRequest {
 }
 
 export class ContentGenerationService {
-  private static async callEdgeFunction(functionName: string, body: any): Promise<any> {
+  private static async callAPI(endpoint: string, body: any): Promise<any> {
     try {
-      const { supabase } = await import('@/integrations/supabase/client');
-      
-      const { data, error } = await supabase.functions.invoke(functionName, {
-        body,
-      });
-
-      if (error) {
-        throw new Error(`Edge function error: ${error.message}`);
-      }
-
-      return data;
+      const { apiClient } = await import('@/lib/api-client');
+      return await apiClient.generateContent(body);
     } catch (error) {
-      console.error(`Error calling ${functionName}:`, error);
+      console.error(`Error calling ${endpoint}:`, error);
       throw error;
     }
   }
@@ -63,8 +54,8 @@ export class ContentGenerationService {
       platform,
     };
 
-    const response = await this.callEdgeFunction('generate-content', request);
-    return response.data || [];
+    const response = await this.callAPI('generate-content', request);
+    return response.content ? [{ content: response.content, type: response.type }] : [];
   }
 
   static async generateGoogleAds(
@@ -83,8 +74,8 @@ export class ContentGenerationService {
       budget,
     };
 
-    const response = await this.callEdgeFunction('generate-content', request);
-    return response.data || [];
+    const response = await this.callAPI('generate-content', request);
+    return response.content ? [{ content: response.content, type: response.type }] : [];
   }
 
   static async generateSocialAds(
@@ -104,8 +95,8 @@ export class ContentGenerationService {
       budget,
     };
 
-    const response = await this.callEdgeFunction('generate-content', request);
-    return response.data || [];
+    const response = await this.callAPI('generate-content', request);
+    return response.content ? [{ content: response.content, type: response.type }] : [];
   }
 
   static parseGeneratedPosts(text: string, platform?: string): GeneratedContent[] {

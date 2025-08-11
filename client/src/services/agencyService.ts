@@ -1,184 +1,127 @@
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/api-client";
 import type { Client, AgencyTeamMember, ClientCampaign, EmailCampaign, ClientAnalytics, ClientPerformanceMetrics, FilterOptions } from "@/types/agency";
 
 export class AgencyService {
-  // Client Management
+  // Client Management  
   static async getClients(filters?: FilterOptions): Promise<Client[]> {
-    let query = supabase
-      .from('clients')
-      .select('*');
-
-    if (filters?.status) {
-      query = query.eq('status', filters.status as any);
+    try {
+      // For now using a mock agency ID - in real implementation this would come from auth context
+      const mockAgencyId = 'default-agency';
+      const clients = await apiClient.getClients(mockAgencyId);
+      
+      // Apply client-side filtering since our API doesn't support complex filtering yet
+      let filteredClients = clients || [];
+      
+      if (filters?.status) {
+        filteredClients = filteredClients.filter(client => client.status === filters.status);
+      }
+      
+      if (filters?.industry) {
+        filteredClients = filteredClients.filter(client => client.industry === filters.industry);
+      }
+      
+      // Apply sorting
+      if (filters?.sortBy) {
+        filteredClients.sort((a, b) => {
+          const aVal = a[filters.sortBy as keyof Client];
+          const bVal = b[filters.sortBy as keyof Client];
+          const ascending = filters.sortOrder === 'asc';
+          
+          if (aVal < bVal) return ascending ? -1 : 1;
+          if (aVal > bVal) return ascending ? 1 : -1;
+          return 0;
+        });
+      } else {
+        filteredClients.sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      }
+      
+      return filteredClients;
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      return [];
     }
-
-    if (filters?.industry) {
-      query = query.eq('industry', filters.industry);
-    }
-
-    if (filters?.sortBy) {
-      query = query.order(filters.sortBy, { ascending: filters.sortOrder === 'asc' });
-    } else {
-      query = query.order('created_at', { ascending: false });
-    }
-
-    const { data, error } = await query;
-    if (error) throw error;
-    return data || [];
   }
 
-  static async createClient(clientData: Omit<Client, 'id' | 'created_at' | 'updated_at' | 'agency_id'>): Promise<Client> {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('Not authenticated');
-
-    const { data, error } = await supabase
-      .from('clients')
-      .insert({
+  static async createClient(clientData: Omit<Client, 'id' | 'createdAt' | 'updatedAt' | 'agencyId'>): Promise<Client> {
+    try {
+      // In real implementation, get agency ID from auth context
+      const mockAgencyId = 'default-agency';
+      
+      const newClient = await apiClient.createClient({
         ...clientData,
-        agency_id: user.id
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+        agencyId: mockAgencyId
+      });
+      
+      return newClient;
+    } catch (error) {
+      console.error('Error creating client:', error);
+      throw error;
+    }
   }
 
   static async updateClient(clientId: string, updates: Partial<Client>): Promise<Client> {
-    const { data, error } = await supabase
-      .from('clients')
-      .update(updates)
-      .eq('id', clientId)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+    // Mock implementation - would need server endpoint
+    throw new Error('Update client functionality not yet implemented in server');
   }
 
   static async deleteClient(clientId: string): Promise<void> {
-    const { error } = await supabase
-      .from('clients')
-      .delete()
-      .eq('id', clientId);
-
-    if (error) throw error;
+    // Mock implementation - would need server endpoint  
+    throw new Error('Delete client functionality not yet implemented in server');
   }
 
   // Team Management
   static async getTeamMembers(): Promise<AgencyTeamMember[]> {
-    const { data, error } = await supabase
-      .from('agency_team_members')
-      .select(`
-        *,
-        profiles!agency_team_members_user_id_fkey (
-          full_name,
-          avatar_url,
-          company
-        )
-      `)
-      .eq('is_active', true)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
+    // Mock implementation - would need server endpoint
+    return [];
   }
 
   static async inviteTeamMember(email: string, role: string, permissions?: string[]): Promise<void> {
-    // This would typically involve sending an invitation email
-    // For now, we'll create a placeholder entry
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('Not authenticated');
-
-    // In a real implementation, you'd send an email and create a pending invitation
-    console.log('Inviting team member:', { email, role, permissions });
+    // Mock implementation - would need server endpoint for team management
+    console.log('Team invitation would be sent:', { email, role, permissions });
   }
 
   static async updateTeamMemberRole(memberId: string, role: any, permissions?: string[]): Promise<AgencyTeamMember> {
-    const { data, error } = await supabase
-      .from('agency_team_members')
-      .update({ role, permissions })
-      .eq('id', memberId)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+    // Mock implementation - would need server endpoint
+    throw new Error('Update team member functionality not yet implemented in server');
   }
 
   static async removeTeamMember(memberId: string): Promise<void> {
-    const { error } = await supabase
-      .from('agency_team_members')
-      .update({ is_active: false })
-      .eq('id', memberId);
-
-    if (error) throw error;
+    // Mock implementation - would need server endpoint  
+    throw new Error('Remove team member functionality not yet implemented in server');
   }
 
   // Email Campaigns
   static async getEmailCampaigns(): Promise<EmailCampaign[]> {
-    const { data, error } = await supabase
-      .from('email_campaigns')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return (data || []) as EmailCampaign[];
+    // Mock implementation - would need server endpoint
+    return [];
   }
 
-  static async createEmailCampaign(campaignData: Omit<EmailCampaign, 'id' | 'created_at' | 'updated_at' | 'agency_id' | 'created_by' | 'sent_at'>): Promise<EmailCampaign> {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('Not authenticated');
-
-    const { data, error } = await supabase
-      .from('email_campaigns')
-      .insert({
-        ...campaignData,
-        agency_id: user.id,
-        created_by: user.id
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data as EmailCampaign;
+  static async createEmailCampaign(campaignData: Omit<EmailCampaign, 'id' | 'createdAt' | 'updatedAt' | 'agencyId' | 'createdBy' | 'sentAt'>): Promise<EmailCampaign> {
+    // Mock implementation - would need server endpoint
+    throw new Error('Email campaign functionality not yet implemented in server');
   }
 
   static async sendBulkEmail(campaignId: string): Promise<void> {
-    // This would integrate with an email service like Resend
-    // For now, we'll just update the status
-    const { error } = await supabase
-      .from('email_campaigns')
-      .update({
-        status: 'sent',
-        sent_at: new Date().toISOString()
-      })
-      .eq('id', campaignId);
-
-    if (error) throw error;
+    // Mock implementation - would need server endpoint and email service integration
+    throw new Error('Bulk email functionality not yet implemented in server');
   }
 
   // Analytics
   static async getClientAnalytics(clientId?: string, startDate?: string, endDate?: string): Promise<ClientAnalytics[]> {
-    let query = supabase
-      .from('client_analytics')
-      .select('*');
-
-    if (clientId) {
-      query = query.eq('client_id', clientId);
+    // Use analytics endpoints from server
+    try {
+      const reviewAnalytics = await apiClient.getReviewAnalytics(clientId);
+      const exposureAnalysis = await apiClient.getExposureAnalysis(clientId);
+      
+      // Convert analytics data to ClientAnalytics format
+      // For now returning empty array - would need proper data transformation
+      return [];
+    } catch (error) {
+      console.error('Error fetching client analytics:', error);
+      return [];
     }
-
-    if (startDate) {
-      query = query.gte('date', startDate);
-    }
-
-    if (endDate) {
-      query = query.lte('date', endDate);
-    }
-
-    const { data, error } = await query.order('date', { ascending: false });
-    if (error) throw error;
-    return (data || []) as ClientAnalytics[];
   }
 
   static async getClientPerformanceMetrics(filters?: FilterOptions): Promise<ClientPerformanceMetrics[]> {
@@ -254,33 +197,12 @@ export class AgencyService {
 
   // Campaign Management
   static async getClientCampaigns(clientId?: string): Promise<ClientCampaign[]> {
-    let query = supabase
-      .from('client_campaigns')
-      .select('*');
-
-    if (clientId) {
-      query = query.eq('client_id', clientId);
-    }
-
-    const { data, error } = await query.order('created_at', { ascending: false });
-    if (error) throw error;
-    return (data || []) as ClientCampaign[];
+    // Mock implementation - would need server endpoint
+    return [];
   }
 
-  static async createCampaign(campaignData: Omit<ClientCampaign, 'id' | 'created_at' | 'updated_at' | 'created_by'>): Promise<ClientCampaign> {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('Not authenticated');
-
-    const { data, error } = await supabase
-      .from('client_campaigns')
-      .insert({
-        ...campaignData,
-        created_by: user.id
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data as ClientCampaign;
+  static async createCampaign(campaignData: Omit<ClientCampaign, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>): Promise<ClientCampaign> {
+    // Mock implementation - would need server endpoint
+    throw new Error('Campaign creation functionality not yet implemented in server');
   }
 }
