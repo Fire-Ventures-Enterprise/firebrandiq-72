@@ -55,7 +55,14 @@ export class ContentGenerationService {
     };
 
     const response = await this.callAPI('generate-content', request);
-    return response.content ? [{ content: response.content, type: response.type }] : [];
+    return response.content ? [{
+      id: crypto.randomUUID(),
+      content: response.content,
+      type: 'social_post' as const,
+      platform: (platform as any) || 'twitter',
+      createdAt: new Date(),
+      status: 'draft' as const
+    }] : [];
   }
 
   static async generateGoogleAds(
@@ -75,7 +82,14 @@ export class ContentGenerationService {
     };
 
     const response = await this.callAPI('generate-content', request);
-    return response.content ? [{ content: response.content, type: response.type }] : [];
+    return response.content ? [{
+      id: crypto.randomUUID(),
+      content: response.content,
+      type: 'google_ad' as const,
+      platform: 'google' as const,
+      createdAt: new Date(),
+      status: 'draft' as const
+    }] : [];
   }
 
   static async generateSocialAds(
@@ -96,7 +110,14 @@ export class ContentGenerationService {
     };
 
     const response = await this.callAPI('generate-content', request);
-    return response.content ? [{ content: response.content, type: response.type }] : [];
+    return response.content ? [{
+      id: crypto.randomUUID(),
+      content: response.content,
+      type: 'social_ad' as const,
+      platform: platform as any,
+      createdAt: new Date(),
+      status: 'draft' as const
+    }] : [];
   }
 
   static parseGeneratedPosts(text: string, platform?: string): GeneratedContent[] {
