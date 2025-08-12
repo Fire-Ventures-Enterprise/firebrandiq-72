@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Bot, Wand2, Copy, Download, Sparkles } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Bot, Wand2, Copy, Download, Sparkles, Check } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ContentGenerationService, GeneratedContent } from "@/services/contentGeneration";
@@ -13,6 +14,7 @@ import { ContentGenerationService, GeneratedContent } from "@/services/contentGe
 export default function ContentGenerator() {
   const [loading, setLoading] = useState(false);
   const [generatedContent, setGeneratedContent] = useState<GeneratedContent[]>([]);
+  const [selectedPosts, setSelectedPosts] = useState<Set<string>>(new Set());
   const [formData, setFormData] = useState({
     brandName: '',
     industry: '',
@@ -46,6 +48,8 @@ export default function ContentGenerator() {
       }
       
       setGeneratedContent(content);
+      // Select all posts by default
+      setSelectedPosts(new Set(content.map(c => c.id)));
       toast.success(`Generated ${content.length} pieces of content!`);
     } catch (error) {
       console.error('Generation error:', error);
@@ -58,6 +62,40 @@ export default function ContentGenerator() {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success("Copied to clipboard!");
+  };
+
+  const togglePostSelection = (postId: string) => {
+    setSelectedPosts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedPosts.size === generatedContent.length) {
+      setSelectedPosts(new Set());
+    } else {
+      setSelectedPosts(new Set(generatedContent.map(c => c.id)));
+    }
+  };
+
+  const exportSelectedContent = () => {
+    const selectedContent = generatedContent
+      .filter(content => selectedPosts.has(content.id))
+      .map(c => c.content)
+      .join('\n\n---\n\n');
+    
+    if (selectedContent) {
+      copyToClipboard(selectedContent);
+      toast.success(`Exported ${selectedPosts.size} selected posts to clipboard!`);
+    } else {
+      toast.error("No posts selected for export");
+    }
   };
 
   return (
@@ -200,28 +238,52 @@ export default function ContentGenerator() {
           ) : (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Generated Posts ({generatedContent.length})</h3>
-                <Button variant="outline" size="sm" onClick={() => {
-                  const allContent = generatedContent.map(c => c.content).join('\n\n');
-                  copyToClipboard(allContent);
-                  toast.success("All content exported to clipboard!");
-                }}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Export All
-                </Button>
+                <div className="flex items-center space-x-4">
+                  <h3 className="text-lg font-semibold">Generated Posts ({generatedContent.length})</h3>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      checked={selectedPosts.size === generatedContent.length && generatedContent.length > 0}
+                      onCheckedChange={toggleSelectAll}
+                      data-testid="select-all-checkbox"
+                    />
+                    <Label className="text-sm text-muted-foreground">
+                      Select All ({selectedPosts.size}/{generatedContent.length})
+                    </Label>
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={exportSelectedContent}
+                    disabled={selectedPosts.size === 0}
+                    data-testid="export-selected-button"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Export Selected ({selectedPosts.size})
+                  </Button>
+                </div>
               </div>
 
               {generatedContent.map((content, index) => (
-                <Card key={content.id}>
+                <Card key={content.id} className={selectedPosts.has(content.id) ? 'ring-2 ring-blue-200 bg-blue-50/30' : ''}>
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-base">Post {index + 1}</CardTitle>
+                      <div className="flex items-center space-x-3">
+                        <Checkbox 
+                          checked={selectedPosts.has(content.id)}
+                          onCheckedChange={() => togglePostSelection(content.id)}
+                          data-testid={`post-checkbox-${index}`}
+                        />
+                        <CardTitle className="text-base">Post {index + 1}</CardTitle>
+                      </div>
                       <div className="flex items-center space-x-2">
                         <Badge variant="outline">{content.platform}</Badge>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => copyToClipboard(content.content)}
+                          data-testid={`copy-post-${index}`}
                         >
                           <Copy className="h-4 w-4" />
                         </Button>
