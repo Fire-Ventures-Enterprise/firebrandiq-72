@@ -8,6 +8,12 @@ export interface UserSocialConnection {
   refreshToken?: string;
   tokenExpiresAt?: string;
   platformUserId?: string;
+  profileUrl?: string;
+  avatarUrl?: string;
+  followerCount?: number;
+  followingCount?: number;
+  postCount?: number;
+  lastSyncAt?: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -32,33 +38,123 @@ export interface SocialMetricsData {
 }
 
 export class UserSocialService {
-  static async getUserConnections(): Promise<UserSocialConnection[]> {
-    // Mock implementation - would need server endpoint for social connections
-    return [];
+  static async getUserConnections(userId: string): Promise<UserSocialConnection[]> {
+    try {
+      const response = await fetch(`/api/social/connections?userId=${userId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching user connections:', error);
+      return [];
+    }
   }
 
   static async addConnection(connectionData: {
+    userId: string;
     platform: string;
     username: string;
     accessToken: string;
     refreshToken?: string;
     platformUserId?: string;
   }): Promise<{ success: boolean; error?: string }> {
-    // Mock implementation - would need server endpoint
-    console.log('Social connection would be added:', connectionData);
-    return { success: true };
+    try {
+      const response = await fetch('/api/social/connections', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(connectionData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        return { success: false, error: error.error || response.statusText };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error adding connection:', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
   }
 
   static async removeConnection(connectionId: string): Promise<{ success: boolean; error?: string }> {
-    // Mock implementation - would need server endpoint
-    console.log('Social connection would be removed:', connectionId);
-    return { success: true };
+    try {
+      const response = await fetch(`/api/social/connections/${connectionId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        return { success: false, error: error.error || response.statusText };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error removing connection:', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
   }
 
-  static async fetchPlatformMetrics(platform: string, accessToken: string): Promise<SocialMetricsData | null> {
+  static async testConnection(platform: string, accessToken: string, refreshToken?: string): Promise<{ success: boolean; error?: string }> {
     try {
-      // This would call the actual social media APIs
-      // For now, we'll simulate the API calls and return mock data
+      const response = await fetch('/api/social/test-connection', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ platform, accessToken, refreshToken }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        return { success: false, error: error.error || response.statusText };
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error testing connection:', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+  }
+
+  static async fetchPlatformMetrics(connectionId: string, dateRange?: { start: Date; end: Date }): Promise<SocialMetricsData | null> {
+    try {
+      const params = new URLSearchParams();
+      if (dateRange) {
+        params.append('start', dateRange.start.toISOString());
+        params.append('end', dateRange.end.toISOString());
+      }
+      
+      const response = await fetch(`/api/social/metrics/${connectionId}?${params}`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const metrics = await response.json();
+      
+      // Transform API response to SocialMetricsData format
+      return {
+        platform: 'Unknown', // Would be set from connection data
+        followers: metrics.followers,
+        following: metrics.following,
+        posts: metrics.posts,
+        engagement: {
+          rate: metrics.engagementRate,
+          likes: metrics.likes,
+          comments: metrics.comments,
+          shares: metrics.shares
+        },
+        growth: {
+          followersChange: 0, // Would need historical comparison
+          engagementChange: 0,
+          period: '30 days'
+        }
+      };
+    } catch (error) {
+      console.error('Error fetching platform metrics:', error);
       
       const mockData: Record<string, SocialMetricsData> = {
         instagram: {
@@ -165,21 +261,16 @@ export class UserSocialService {
         }
       };
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      return mockData[platform] || null;
-    } catch (error) {
-      console.error(`Error fetching ${platform} metrics:`, error);
+      // Fallback to null if API call fails
       return null;
     }
   }
 
-  static async getAllUserMetrics(): Promise<SocialMetricsData[]> {
+  static async getAllUserMetrics(userId: string): Promise<SocialMetricsData[]> {
     try {
-      const connections = await this.getUserConnections();
+      const connections = await this.getUserConnections(userId);
       const metricsPromises = connections.map(connection => 
-        this.fetchPlatformMetrics(connection.platform, connection.accessToken)
+        this.fetchPlatformMetrics(connection.id)
       );
       
       const results = await Promise.all(metricsPromises);
@@ -190,23 +281,47 @@ export class UserSocialService {
     }
   }
 
-  static async testConnection(platform: string, accessToken: string): Promise<{ success: boolean; error?: string }> {
+  static async publishPost(connectionId: string, content: string, mediaUrls?: string[]): Promise<{ success: boolean; postId?: string; error?: string }> {
     try {
-      // This would make a test API call to validate the token
-      // For now, we'll simulate the validation
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Simulate random success/failure for demo
-      const isValid = Math.random() > 0.1; // 90% success rate
-      
-      if (!isValid) {
-        return { success: false, error: "Invalid access token or insufficient permissions" };
+      const response = await fetch(`/api/social/publish/${connectionId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content, mediaUrls }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        return { success: false, error: error.error || response.statusText };
       }
-      
-      return { success: true };
+
+      return await response.json();
     } catch (error) {
-      console.error(`Error testing ${platform} connection:`, error);
-      return { success: false, error: "Connection test failed" };
+      console.error('Error publishing post:', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+  }
+
+  static async getSocialPosts(connectionId: string, limit = 10, since?: Date): Promise<any[]> {
+    try {
+      const params = new URLSearchParams({
+        limit: limit.toString(),
+      });
+      
+      if (since) {
+        params.append('since', since.toISOString());
+      }
+
+      const response = await fetch(`/api/social/posts/${connectionId}?${params}`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching social posts:', error);
+      return [];
     }
   }
 }

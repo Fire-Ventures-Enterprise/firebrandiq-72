@@ -120,6 +120,248 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Content generation route (replaces generate-content Edge Function)
+  // Social Media API Integration Routes
+  app.get("/api/social/connections", async (req, res) => {
+    try {
+      const userId = req.query.userId as string;
+      if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+      }
+      
+      const connections = await storage.getSocialConnections(userId);
+      res.json(connections);
+    } catch (error) {
+      console.error("Error fetching social connections:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/social/connections", async (req, res) => {
+    try {
+      const connectionData = insertSocialConnectionSchema.parse(req.body);
+      const connection = await storage.createSocialConnection(connectionData);
+      res.status(201).json(connection);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid input", details: error.errors });
+      }
+      console.error("Error creating social connection:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.put("/api/social/connections/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+      const connection = await storage.updateSocialConnection(id, updateData);
+      
+      if (!connection) {
+        return res.status(404).json({ error: "Connection not found" });
+      }
+      
+      res.json(connection);
+    } catch (error) {
+      console.error("Error updating social connection:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/social/connections/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deleteSocialConnection(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ error: "Connection not found" });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting social connection:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/social/test-connection", async (req, res) => {
+    try {
+      const { platform, accessToken, refreshToken } = req.body;
+      
+      if (!platform || !accessToken) {
+        return res.status(400).json({ error: "Platform and access token are required" });
+      }
+
+      const { createPlatformAPI } = await import('./services/socialMediaAPI');
+      const api = createPlatformAPI(platform, accessToken, refreshToken);
+      const result = await api.testConnection();
+      
+      res.json(result);
+    } catch (error) {
+      console.error("Error testing social connection:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/social/profile/:connectionId", async (req, res) => {
+    try {
+      const { connectionId } = req.params;
+      const connection = await storage.getSocialConnection(connectionId);
+      
+      if (!connection) {
+        return res.status(404).json({ error: "Connection not found" });
+      }
+
+      const { createPlatformAPI } = await import('./services/socialMediaAPI');
+      const api = createPlatformAPI(connection.platform, connection.accessToken, connection.refreshToken || undefined);
+      const profile = await api.getProfile();
+      
+      // Update connection with fresh profile data
+      await storage.updateSocialConnection(connectionId, {
+        username: profile.username,
+        profileUrl: profile.profileUrl,
+        avatarUrl: profile.avatarUrl,
+        followerCount: profile.followerCount,
+        followingCount: profile.followingCount,
+        postCount: profile.postCount,
+        lastSyncAt: new Date()
+      });
+      
+      res.json(profile);
+    } catch (error) {
+      console.error("Error fetching social profile:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/social/metrics/:connectionId", async (req, res) => {
+    try {
+      const { connectionId } = req.params;
+      const { start, end } = req.query;
+      
+      const connection = await storage.getSocialConnection(connectionId);
+      if (!connection) {
+        return res.status(404).json({ error: "Connection not found" });
+      }
+
+      const { createPlatformAPI } = await import('./services/socialMediaAPI');
+      const api = createPlatformAPI(connection.platform, connection.accessToken, connection.refreshToken || undefined);
+      
+      const dateRange = start && end ? {
+        start: new Date(start as string),
+        end: new Date(end as string)
+      } : undefined;
+      
+      const metrics = await api.getMetrics(dateRange);
+      
+      // Store metrics in database
+      await storage.createSocialMetric({
+        connectionId,
+        date: new Date().toISOString().split('T')[0],
+        followers: metrics.followers,
+        following: metrics.following,
+        posts: metrics.posts,
+        likes: metrics.likes,
+        comments: metrics.comments,
+        shares: metrics.shares,
+        impressions: metrics.impressions || 0,
+        reach: metrics.reach || 0,
+        engagementRate: metrics.engagementRate.toString()
+      });
+      
+      res.json(metrics);
+    } catch (error) {
+      console.error("Error fetching social metrics:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/social/posts/:connectionId", async (req, res) => {
+    try {
+      const { connectionId } = req.params;
+      const { limit, since } = req.query;
+      
+      const connection = await storage.getSocialConnection(connectionId);
+      if (!connection) {
+        return res.status(404).json({ error: "Connection not found" });
+      }
+
+      const { createPlatformAPI } = await import('./services/socialMediaAPI');
+      const api = createPlatformAPI(connection.platform, connection.accessToken, connection.refreshToken || undefined);
+      
+      const posts = await api.getPosts(
+        limit ? parseInt(limit as string) : 10,
+        since ? new Date(since as string) : undefined
+      );
+      
+      // Store posts in database
+      for (const post of posts) {
+        await storage.createSocialPost({
+          connectionId,
+          platformPostId: post.id,
+          content: post.content,
+          mediaUrls: post.mediaUrls,
+          hashtags: post.hashtags,
+          mentions: post.mentions,
+          likesCount: post.likesCount,
+          commentsCount: post.commentsCount,
+          sharesCount: post.sharesCount,
+          engagementRate: post.likesCount && post.commentsCount ? 
+            ((post.likesCount + post.commentsCount) / Math.max(1, post.likesCount + post.commentsCount + post.sharesCount) * 100).toFixed(2) : 
+            "0",
+          publishedAt: post.publishedAt
+        });
+      }
+      
+      res.json(posts);
+    } catch (error) {
+      console.error("Error fetching social posts:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/social/publish/:connectionId", async (req, res) => {
+    try {
+      const { connectionId } = req.params;
+      const { content, mediaUrls } = req.body;
+      
+      if (!content) {
+        return res.status(400).json({ error: "Content is required" });
+      }
+
+      const connection = await storage.getSocialConnection(connectionId);
+      if (!connection) {
+        return res.status(404).json({ error: "Connection not found" });
+      }
+
+      const { createPlatformAPI } = await import('./services/socialMediaAPI');
+      const api = createPlatformAPI(connection.platform, connection.accessToken, connection.refreshToken || undefined);
+      
+      const result = await api.publishPost(content, mediaUrls);
+      
+      if (result.success && result.postId) {
+        // Store the published post
+        await storage.createSocialPost({
+          connectionId,
+          platformPostId: result.postId,
+          content,
+          mediaUrls: mediaUrls || [],
+          hashtags: content.match(/#\w+/g) || [],
+          mentions: content.match(/@\w+/g) || [],
+          likesCount: 0,
+          commentsCount: 0,
+          sharesCount: 0,
+          engagementRate: "0",
+          publishedAt: new Date()
+        });
+      }
+      
+      res.json(result);
+    } catch (error) {
+      console.error("Error publishing social post:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   app.post("/api/generate-content", async (req, res) => {
     try {
       const requestData = generateContentSchema.parse(req.body);

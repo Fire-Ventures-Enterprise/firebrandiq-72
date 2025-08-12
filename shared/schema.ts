@@ -51,15 +51,59 @@ export const socialConnections = pgTable("social_connections", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   clientId: uuid("client_id").references(() => clients.id, { onDelete: "cascade" }),
-  platform: text("platform").notNull(),
+  platform: text("platform", { enum: ["twitter", "linkedin", "instagram", "facebook", "tiktok", "youtube"] }).notNull(),
   username: text("username"),
   accessToken: text("access_token"),
   refreshToken: text("refresh_token"),
   tokenExpiresAt: timestamp("token_expires_at", { withTimezone: true }),
   platformUserId: text("platform_user_id"),
+  profileUrl: text("profile_url"),
+  avatarUrl: text("avatar_url"),
+  followerCount: integer("follower_count").default(0),
+  followingCount: integer("following_count").default(0),
+  postCount: integer("post_count").default(0),
+  lastSyncAt: timestamp("last_sync_at", { withTimezone: true }),
+  apiQuotaUsed: integer("api_quota_used").default(0),
+  apiQuotaLimit: integer("api_quota_limit").default(1000),
+  webhookUrl: text("webhook_url"),
+  scopes: text("scopes").array(),
+  metadata: jsonb("metadata"),
   isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const socialPosts = pgTable("social_posts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  connectionId: uuid("connection_id").references(() => socialConnections.id, { onDelete: "cascade" }).notNull(),
+  platformPostId: text("platform_post_id").notNull(),
+  content: text("content").notNull(),
+  mediaUrls: text("media_urls").array(),
+  hashtags: text("hashtags").array(),
+  mentions: text("mentions").array(),
+  likesCount: integer("likes_count").default(0),
+  commentsCount: integer("comments_count").default(0),
+  sharesCount: integer("shares_count").default(0),
+  engagementRate: decimal("engagement_rate", { precision: 5, scale: 2 }),
+  publishedAt: timestamp("published_at", { withTimezone: true }).notNull(),
+  fetchedAt: timestamp("fetched_at", { withTimezone: true }).defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const socialMetrics = pgTable("social_metrics", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  connectionId: uuid("connection_id").references(() => socialConnections.id, { onDelete: "cascade" }).notNull(),
+  date: date("date").notNull(),
+  followers: integer("followers").default(0),
+  following: integer("following").default(0),
+  posts: integer("posts").default(0),
+  likes: integer("likes").default(0),
+  comments: integer("comments").default(0),
+  shares: integer("shares").default(0),
+  impressions: integer("impressions").default(0),
+  reach: integer("reach").default(0),
+  engagementRate: decimal("engagement_rate", { precision: 5, scale: 2 }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 // Agency team members table
@@ -182,6 +226,17 @@ export const insertSocialConnectionSchema = createInsertSchema(socialConnections
   updatedAt: true,
 });
 
+export const insertSocialPostSchema = createInsertSchema(socialPosts).omit({
+  id: true,
+  createdAt: true,
+  fetchedAt: true,
+});
+
+export const insertSocialMetricSchema = createInsertSchema(socialMetrics).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertClientCampaignSchema = createInsertSchema(clientCampaigns).omit({
   id: true,
   createdAt: true,
@@ -197,5 +252,9 @@ export type InsertClient = z.infer<typeof insertClientSchema>;
 export type Client = typeof clients.$inferSelect;
 export type InsertSocialConnection = z.infer<typeof insertSocialConnectionSchema>;
 export type SocialConnection = typeof socialConnections.$inferSelect;
+export type InsertSocialPost = z.infer<typeof insertSocialPostSchema>;
+export type SocialPost = typeof socialPosts.$inferSelect;
+export type InsertSocialMetric = z.infer<typeof insertSocialMetricSchema>;
+export type SocialMetric = typeof socialMetrics.$inferSelect;
 export type InsertClientCampaign = z.infer<typeof insertClientCampaignSchema>;
 export type ClientCampaign = typeof clientCampaigns.$inferSelect;

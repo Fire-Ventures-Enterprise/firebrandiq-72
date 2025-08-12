@@ -88,8 +88,21 @@ export default function SocialConnectionsManager() {
 
   const loadConnections = async () => {
     try {
-      // Mock implementation - would need server endpoint
-      setConnections([]);
+      // For now, using a mock userId - in real app this would come from auth context
+      const mockUserId = "user-123";
+      const { UserSocialService } = await import('@/services/userSocialService');
+      const userConnections = await UserSocialService.getUserConnections(mockUserId);
+      
+      // Transform to component format
+      const formattedConnections = userConnections.map(conn => ({
+        id: conn.id,
+        platform: conn.platform,
+        username: conn.username,
+        is_active: conn.isActive,
+        created_at: conn.createdAt
+      }));
+      
+      setConnections(formattedConnections);
     } catch (error) {
       console.error('Error loading connections:', error);
       toast({
@@ -110,20 +123,48 @@ export default function SocialConnectionsManager() {
 
   const handleSaveConnection = async () => {
     try {
-      // Mock implementation - would need server endpoint
-      console.log('Social connection would be saved:', {
+      // First test the connection
+      const { UserSocialService } = await import('@/services/userSocialService');
+      const testResult = await UserSocialService.testConnection(
+        selectedPlatform, 
+        formData.access_token,
+        formData.refresh_token
+      );
+
+      if (!testResult.success) {
+        toast({
+          title: "Connection Test Failed",
+          description: testResult.error || "Invalid credentials",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Save the connection if test passed
+      const mockUserId = "user-123"; // In real app, get from auth context
+      const result = await UserSocialService.addConnection({
+        userId: mockUserId,
         platform: selectedPlatform,
         username: formData.username,
-        accessToken: formData.access_token
+        accessToken: formData.access_token,
+        refreshToken: formData.refresh_token,
+        platformUserId: formData.platform_user_id
       });
 
-      toast({
-        title: "Success",
-        description: `${platformConfigs[selectedPlatform as keyof typeof platformConfigs].name} connected successfully`,
-      });
-
-      setConnectDialogOpen(false);
-      loadConnections();
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: `${platformConfigs[selectedPlatform as keyof typeof platformConfigs].name} connected successfully`,
+        });
+        setConnectDialogOpen(false);
+        loadConnections();
+      } else {
+        toast({
+          title: "Error",
+          description: result.error || "Failed to save connection",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
       console.error('Error saving connection:', error);
       toast({
@@ -136,15 +177,22 @@ export default function SocialConnectionsManager() {
 
   const handleDisconnect = async (connectionId: string, platform: string) => {
     try {
-      // Mock implementation - would need server endpoint
-      console.log('Social connection would be disconnected:', { connectionId, platform });
+      const { UserSocialService } = await import('@/services/userSocialService');
+      const result = await UserSocialService.removeConnection(connectionId);
 
-      toast({
-        title: "Disconnected",
-        description: `${platform} account has been disconnected`,
-      });
-
-      loadConnections();
+      if (result.success) {
+        toast({
+          title: "Disconnected",
+          description: `${platform} account has been disconnected`,
+        });
+        loadConnections();
+      } else {
+        toast({
+          title: "Error",
+          description: result.error || "Failed to disconnect account",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
       console.error('Error disconnecting:', error);
       toast({

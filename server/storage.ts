@@ -2,9 +2,9 @@ import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
 import { eq } from "drizzle-orm";
 import { 
-  users, profiles, clients, socialConnections, 
-  type User, type Profile, type Client, type SocialConnection,
-  type InsertUser, type InsertProfile, type InsertClient, type InsertSocialConnection 
+  users, profiles, clients, socialConnections, socialPosts, socialMetrics,
+  type User, type Profile, type Client, type SocialConnection, type SocialPost, type SocialMetric,
+  type InsertUser, type InsertProfile, type InsertClient, type InsertSocialConnection, type InsertSocialPost, type InsertSocialMetric
 } from "@shared/schema";
 
 // Database connection
@@ -32,8 +32,18 @@ export interface IStorage {
   
   // Social connections
   getSocialConnections(userId: string): Promise<SocialConnection[]>;
+  getSocialConnection(id: string): Promise<SocialConnection | undefined>;
   createSocialConnection(connection: InsertSocialConnection): Promise<SocialConnection>;
   updateSocialConnection(id: string, connection: Partial<SocialConnection>): Promise<SocialConnection | undefined>;
+  deleteSocialConnection(id: string): Promise<boolean>;
+  
+  // Social posts
+  getSocialPosts(connectionId: string): Promise<SocialPost[]>;
+  createSocialPost(post: InsertSocialPost): Promise<SocialPost>;
+  
+  // Social metrics
+  getSocialMetrics(connectionId: string, dateRange?: { start: Date; end: Date }): Promise<SocialMetric[]>;
+  createSocialMetric(metric: InsertSocialMetric): Promise<SocialMetric>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -112,6 +122,11 @@ export class DatabaseStorage implements IStorage {
     return newConnection;
   }
 
+  async getSocialConnection(id: string): Promise<SocialConnection | undefined> {
+    const [connection] = await db.select().from(socialConnections).where(eq(socialConnections.id, id));
+    return connection;
+  }
+
   async updateSocialConnection(id: string, connection: Partial<SocialConnection>): Promise<SocialConnection | undefined> {
     const [updatedConnection] = await db
       .update(socialConnections)
@@ -119,6 +134,37 @@ export class DatabaseStorage implements IStorage {
       .where(eq(socialConnections.id, id))
       .returning();
     return updatedConnection;
+  }
+
+  async deleteSocialConnection(id: string): Promise<boolean> {
+    const result = await db.delete(socialConnections).where(eq(socialConnections.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Social posts methods
+  async getSocialPosts(connectionId: string): Promise<SocialPost[]> {
+    return await db.select().from(socialPosts).where(eq(socialPosts.connectionId, connectionId));
+  }
+
+  async createSocialPost(post: InsertSocialPost): Promise<SocialPost> {
+    const [newPost] = await db.insert(socialPosts).values(post).returning();
+    return newPost;
+  }
+
+  // Social metrics methods
+  async getSocialMetrics(connectionId: string, dateRange?: { start: Date; end: Date }): Promise<SocialMetric[]> {
+    let query = db.select().from(socialMetrics).where(eq(socialMetrics.connectionId, connectionId));
+    
+    if (dateRange) {
+      // Add date range filtering logic here if needed
+    }
+    
+    return await query;
+  }
+
+  async createSocialMetric(metric: InsertSocialMetric): Promise<SocialMetric> {
+    const [newMetric] = await db.insert(socialMetrics).values(metric).returning();
+    return newMetric;
   }
 }
 
@@ -129,11 +175,16 @@ export class MemStorage implements IStorage {
   private clients: Map<string, Client>;
   private socialConnections: Map<string, SocialConnection>;
 
+  private socialPosts: Map<string, SocialPost>;
+  private socialMetrics: Map<string, SocialMetric>;
+
   constructor() {
     this.users = new Map();
     this.profiles = new Map();
     this.clients = new Map();
     this.socialConnections = new Map();
+    this.socialPosts = new Map();
+    this.socialMetrics = new Map();
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -249,6 +300,54 @@ export class MemStorage implements IStorage {
     };
     this.socialConnections.set(id, updatedConnection);
     return updatedConnection;
+  }
+
+  async getSocialConnection(id: string): Promise<SocialConnection | undefined> {
+    return this.socialConnections.get(id);
+  }
+
+  async deleteSocialConnection(id: string): Promise<boolean> {
+    return this.socialConnections.delete(id);
+  }
+
+  async getSocialPosts(connectionId: string): Promise<SocialPost[]> {
+    return Array.from(this.socialPosts.values()).filter(post => post.connectionId === connectionId);
+  }
+
+  async createSocialPost(insertPost: InsertSocialPost): Promise<SocialPost> {
+    const id = crypto.randomUUID();
+    const post: SocialPost = {
+      ...insertPost,
+      id,
+      fetchedAt: new Date(),
+      createdAt: new Date()
+    };
+    this.socialPosts.set(id, post);
+    return post;
+  }
+
+  async getSocialMetrics(connectionId: string, dateRange?: { start: Date; end: Date }): Promise<SocialMetric[]> {
+    let metrics = Array.from(this.socialMetrics.values()).filter(metric => metric.connectionId === connectionId);
+    
+    if (dateRange) {
+      metrics = metrics.filter(metric => {
+        const date = new Date(metric.date);
+        return date >= dateRange.start && date <= dateRange.end;
+      });
+    }
+    
+    return metrics;
+  }
+
+  async createSocialMetric(insertMetric: InsertSocialMetric): Promise<SocialMetric> {
+    const id = crypto.randomUUID();
+    const metric: SocialMetric = {
+      ...insertMetric,
+      id,
+      createdAt: new Date()
+    };
+    this.socialMetrics.set(id, metric);
+    return metric;
   }
 }
 
