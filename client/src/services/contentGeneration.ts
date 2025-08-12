@@ -122,27 +122,44 @@ export class ContentGenerationService {
 
   static parseGeneratedPosts(text: string, platform?: string): GeneratedContent[] {
     try {
-      // Split the text into individual posts
-      const postSections = text.split(/\n\s*\d+\./g).filter(section => section.trim());
+      // Split the text into individual posts using various patterns
+      const postSections = text.split(/(?:Post \d+:|^\d+\.|\n\s*Post \d+)/gm).filter(section => section.trim());
       
       return postSections.slice(0, 5).map((section, index) => {
-        const lines = section.split('\n').filter(line => line.trim());
+        // Clean up the section text
+        let cleanContent = section.trim();
         
-        // Extract content, hashtags, and CTA
-        const content = lines.find(line => !line.startsWith('#') && !line.includes('CTA:') && !line.includes('Target:'))?.trim() || '';
-        const hashtagLine = lines.find(line => line.includes('#'))?.trim() || '';
-        const hashtags = hashtagLine.match(/#\w+/g) || [];
-        const ctaLine = lines.find(line => line.includes('CTA:'))?.replace('CTA:', '').trim() || '';
-        const targetLine = lines.find(line => line.includes('Target:'))?.replace('Target:', '').trim() || '';
-
+        // Extract hashtags from the content
+        const hashtagMatches = cleanContent.match(/#\w+/g) || [];
+        const hashtags = Array.from(new Set(hashtagMatches)); // Remove duplicates
+        
+        // Extract CTA if present
+        const ctaMatch = cleanContent.match(/CTA:\s*([^#\n]+)/i);
+        const callToAction = ctaMatch ? ctaMatch[1].trim() : '';
+        
+        // Extract Target audience if present  
+        const targetMatch = cleanContent.match(/Target:\s*([^#\n]+)/i);
+        const targetAudience = targetMatch ? targetMatch[1].trim() : '';
+        
+        // Clean the main content by removing CTA, Target, and excessive hashtags
+        cleanContent = cleanContent
+          .replace(/CTA:\s*[^#\n]+/gi, '')
+          .replace(/Target:\s*[^#\n]+/gi, '')
+          .replace(/(#\w+\s*){4,}/g, '') // Remove excessive hashtag clusters
+          .replace(/\s+/g, ' ') // Normalize whitespace
+          .trim();
+        
+        // Format the content for better readability
+        const formattedContent = this.formatPostContent(cleanContent, hashtags.slice(0, 5)); // Limit hashtags
+        
         return {
           id: crypto.randomUUID(),
           type: 'social_post' as const,
           platform: (platform as any) || 'twitter',
-          content,
-          hashtags,
-          callToAction: ctaLine,
-          targetAudience: targetLine,
+          content: formattedContent,
+          hashtags: hashtags.slice(0, 5), // Limit to 5 hashtags
+          callToAction: callToAction,
+          targetAudience: targetAudience,
           createdAt: new Date(),
           status: 'draft' as const,
         };
@@ -151,6 +168,26 @@ export class ContentGenerationService {
       console.error('Error parsing generated posts:', error);
       return [];
     }
+  }
+
+  private static formatPostContent(content: string, hashtags: string[]): string {
+    // Remove any remaining hashtags from main content
+    let formatted = content.replace(/#\w+/g, '').trim();
+    
+    // Add proper line breaks for readability
+    formatted = formatted
+      .replace(/\.\s+/g, '.\n\n') // Add breaks after sentences
+      .replace(/!\s+/g, '!\n\n') // Add breaks after exclamations
+      .replace(/\?\s+/g, '?\n\n') // Add breaks after questions
+      .replace(/\n\n+/g, '\n\n') // Normalize multiple line breaks
+      .trim();
+    
+    // Add hashtags at the end with proper spacing
+    if (hashtags.length > 0) {
+      formatted += '\n\n' + hashtags.join(' ');
+    }
+    
+    return formatted;
   }
 
   static parseGeneratedAds(text: string, type: 'google_ad' | 'social_ad' = 'google_ad'): GeneratedContent[] {

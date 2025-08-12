@@ -134,27 +134,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let maxTokens = 2000;
 
       if (type === 'social_posts') {
-        prompt = `
-          Generate 5 engaging social media posts for ${brandName}, a ${industry} company.
-          Tone: ${tone || 'professional'}
-          Platform: ${platform || 'general social media'}
-          Topics to focus on: ${topics?.join(', ') || 'industry trends, company updates, tips'}
-          
-          For each post, provide:
-          1. Engaging content (appropriate length for platform)
-          2. Relevant hashtags
-          3. Call-to-action
-          4. Target audience description
-          
-          Format each post as:
-          Post [number]:
-          [content]
-          Hashtags: [hashtags]
-          CTA: [call-to-action]
-          Target: [target audience]
-          
-          Make posts authentic, valuable, and brand-appropriate.
-        `;
+        prompt = `Generate 5 engaging social media posts for ${brandName}, a ${industry} company.
+Tone: ${tone || 'professional'}
+Platform: ${platform || 'general social media'}
+Topics: ${topics?.join(', ') || 'industry trends, company updates, tips'}
+
+Requirements:
+- Write compelling, readable content with natural line breaks for readability
+- Each post should tell a story or provide value
+- Include 3-5 relevant hashtags
+- Add clear call-to-action when appropriate
+- Keep posts scannable with proper formatting
+
+Format each post exactly as:
+Post 1: [Opening hook or question]
+
+[Main content with natural paragraph breaks for readability]
+
+[Call to action if needed]
+
+#hashtag1 #hashtag2 #hashtag3
+CTA: [specific call to action]
+Target: [target audience description]
+
+Make each post authentic, valuable, and engaging for the target audience.`;
       } else if (type === 'google_ads') {
         prompt = `
           Generate 3 Google Ads campaigns for ${brandName}, a ${industry} company.

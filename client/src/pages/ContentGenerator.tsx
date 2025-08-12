@@ -228,15 +228,26 @@ export default function ContentGenerator() {
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div>
-                      <p className="text-sm leading-relaxed">{content.content}</p>
+                  <CardContent className="space-y-4">
+                    <div className="prose prose-sm max-w-none">
+                      <div 
+                        className="text-sm leading-relaxed whitespace-pre-line"
+                        style={{ lineHeight: '1.6' }}
+                        data-testid={`post-content-${index}`}
+                      >
+                        {content.content}
+                      </div>
                     </div>
                     
                     {content.hashtags && content.hashtags.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex flex-wrap gap-2 pt-2 border-t">
                         {content.hashtags.map((tag, i) => (
-                          <Badge key={i} variant="secondary" className="text-xs">
+                          <Badge 
+                            key={i} 
+                            variant="secondary" 
+                            className="text-xs px-2 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                            data-testid={`hashtag-${index}-${i}`}
+                          >
                             {tag}
                           </Badge>
                         ))}
@@ -244,14 +255,20 @@ export default function ContentGenerator() {
                     )}
 
                     {content.callToAction && (
-                      <div className="p-2 bg-muted/50 rounded text-sm">
-                        <strong>CTA:</strong> {content.callToAction}
+                      <div className="p-3 bg-gradient-to-r from-green-50 to-blue-50 border-l-4 border-green-400 rounded text-sm">
+                        <div className="flex items-start space-x-2">
+                          <span className="font-semibold text-green-700">📢 Call to Action:</span>
+                          <span className="text-green-800">{content.callToAction}</span>
+                        </div>
                       </div>
                     )}
 
                     {content.targetAudience && (
-                      <div className="text-xs text-muted-foreground">
-                        <strong>Target:</strong> {content.targetAudience}
+                      <div className="text-xs text-muted-foreground bg-gray-50 p-2 rounded">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-semibold">🎯 Target Audience:</span>
+                          <span>{content.targetAudience}</span>
+                        </div>
                       </div>
                     )}
                   </CardContent>
