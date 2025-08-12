@@ -4,7 +4,7 @@
 
 FirebrandIQ is a comprehensive brand intelligence and monitoring platform that combines AI-powered insights with social media management, content generation, and competitor analysis. The application is built as a full-stack solution with React frontend, Express.js backend, and PostgreSQL database, focusing on helping agencies and brands monitor their online presence, analyze sentiment, and optimize their digital marketing strategies.
 
-The platform offers real-time brand monitoring, AI-driven content generation, social media analytics, competitor tracking, and automated reporting capabilities. It integrates psychology-driven UX principles to present insights in an optimized, user-friendly manner.
+The platform offers real-time brand monitoring, AI-driven content generation with enhanced readability and post selection, social media analytics, competitor tracking, and automated reporting capabilities. It integrates psychology-driven UX principles to present insights in an optimized, user-friendly manner with improved content formatting and user control over generated posts.
 
 ## User Preferences
 
