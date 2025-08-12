@@ -245,6 +245,7 @@ export default function ContentGenerator() {
                       checked={selectedPosts.size === generatedContent.length && generatedContent.length > 0}
                       onCheckedChange={toggleSelectAll}
                       data-testid="select-all-checkbox"
+                      className="h-5 w-5"
                     />
                     <Label className="text-sm text-muted-foreground">
                       Select All ({selectedPosts.size}/{generatedContent.length})
@@ -270,12 +271,21 @@ export default function ContentGenerator() {
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <Checkbox 
-                          checked={selectedPosts.has(content.id)}
-                          onCheckedChange={() => togglePostSelection(content.id)}
-                          data-testid={`post-checkbox-${index}`}
-                        />
+                        <div className="flex items-center">
+                          <Checkbox 
+                            checked={selectedPosts.has(content.id)}
+                            onCheckedChange={() => togglePostSelection(content.id)}
+                            data-testid={`post-checkbox-${index}`}
+                            className="h-5 w-5 border-2 border-gray-400"
+                            id={`post-${content.id}`}
+                          />
+                        </div>
                         <CardTitle className="text-base">Post {index + 1}</CardTitle>
+                        {selectedPosts.has(content.id) && (
+                          <Badge variant="secondary" className="bg-green-100 text-green-700">
+                            Selected
+                          </Badge>
+                        )}
                       </div>
                       <div className="flex items-center space-x-2">
                         <Badge variant="outline">{content.platform}</Badge>
