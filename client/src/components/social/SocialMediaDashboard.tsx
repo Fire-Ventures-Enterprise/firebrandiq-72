@@ -26,7 +26,8 @@ import {
   ExternalLinkIcon,
   CheckCircleIcon,
   XCircleIcon,
-  AlertCircleIcon
+  AlertCircleIcon,
+  ZapIcon
 } from 'lucide-react';
 import SocialConnectionsManager from './SocialConnectionsManager';
 import { SocialConnectionWizard } from './SocialConnectionWizard';
@@ -477,7 +478,7 @@ export function SocialMediaDashboard() {
                 onClick={() => setShowConnectionWizard(true)}
                 data-testid="button-open-wizard"
               >
-                <Zap className="h-4 w-4 mr-2" />
+                <ZapIcon className="h-4 w-4 mr-2" />
                 Connection Wizard
               </Button>
             </div>
