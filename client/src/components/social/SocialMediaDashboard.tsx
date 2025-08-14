@@ -29,6 +29,10 @@ import {
   AlertCircleIcon
 } from 'lucide-react';
 import SocialConnectionsManager from './SocialConnectionsManager';
+import { SocialConnectionWizard } from './SocialConnectionWizard';
+import { ContentScheduler } from './ContentScheduler';
+import { PerformanceDashboard } from './PerformanceDashboard';
+import { ContentRecommendationEngine } from './ContentRecommendationEngine';
 
 interface SocialPost {
   id: string;
@@ -65,6 +69,7 @@ export function SocialMediaDashboard() {
   const [publishContent, setPublishContent] = useState('');
   const [selectedConnections, setSelectedConnections] = useState<string[]>([]);
   const [publishing, setPublishing] = useState(false);
+  const [showConnectionWizard, setShowConnectionWizard] = useState(false);
 
   const mockUserId = "user-123"; // In real app, get from auth context
 
@@ -201,11 +206,13 @@ export function SocialMediaDashboard() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="publish">Publish</TabsTrigger>
+          <TabsTrigger value="scheduler">Scheduler</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="ai-content">AI Content</TabsTrigger>
           <TabsTrigger value="connections">Connections</TabsTrigger>
+          <TabsTrigger value="performance">Performance</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -328,6 +335,18 @@ export function SocialMediaDashboard() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="scheduler" className="space-y-6">
+          <ContentScheduler />
+        </TabsContent>
+
+        <TabsContent value="ai-content" className="space-y-6">
+          <ContentRecommendationEngine />
+        </TabsContent>
+
+        <TabsContent value="performance" className="space-y-6">
+          <PerformanceDashboard />
+        </TabsContent>
+
         <TabsContent value="publish" className="space-y-6">
           <Card>
             <CardHeader>
@@ -448,9 +467,34 @@ export function SocialMediaDashboard() {
         </TabsContent>
 
         <TabsContent value="connections">
-          <SocialConnectionsManager />
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold">Social Media Connections</h3>
+                <p className="text-muted-foreground">Manage your connected social media accounts</p>
+              </div>
+              <Button 
+                onClick={() => setShowConnectionWizard(true)}
+                data-testid="button-open-wizard"
+              >
+                <Zap className="h-4 w-4 mr-2" />
+                Connection Wizard
+              </Button>
+            </div>
+            <SocialConnectionsManager />
+          </div>
         </TabsContent>
       </Tabs>
+
+      {/* Social Connection Wizard */}
+      <SocialConnectionWizard
+        isOpen={showConnectionWizard}
+        onClose={() => setShowConnectionWizard(false)}
+        onSuccess={() => {
+          setShowConnectionWizard(false);
+          loadData(); // Refresh data after successful connection
+        }}
+      />
     </div>
   );
 }
