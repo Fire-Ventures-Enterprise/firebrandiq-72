@@ -1,19 +1,19 @@
 export interface Client {
   id: string;
-  agency_id: string;
+  agencyId: string;
   name: string;
-  company_name?: string;
+  companyName?: string;
   email?: string;
   phone?: string;
   website?: string;
   industry?: string;
   status: 'active' | 'inactive' | 'trial' | 'suspended';
-  monthly_budget?: number;
-  contract_start_date?: string;
-  contract_end_date?: string;
+  monthlyBudget?: number;
+  contractStartDate?: string;
+  contractEndDate?: string;
   notes?: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AgencyTeamMember {
@@ -52,19 +52,19 @@ export interface ClientCampaign {
 
 export interface EmailCampaign {
   id: string;
-  agency_id: string;
+  agencyId: string;
   name: string;
   subject: string;
   content: string;
-  is_bulk: boolean;
-  client_ids?: string[];
-  scheduled_at?: string;
-  sent_at?: string;
+  isBulk: boolean;
+  clientIds?: string[];
+  scheduledAt?: string;
+  sentAt?: string;
   status: string;
   metrics: any;
-  created_by: string;
-  created_at: string;
-  updated_at: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ClientAnalytics {

@@ -8,7 +8,7 @@ import {
 } from "@shared/schema";
 
 // Database connection
-const sql = neon(process.env.DATABASE_URL!);
+const sql = neon(process.env.SUPABASE_DB_URL || process.env.DATABASE_URL || '');
 const db = drizzle(sql);
 
 // Main storage interface
@@ -200,6 +200,7 @@ export class MemStorage implements IStorage {
     const user: User = { 
       ...insertUser, 
       id, 
+      password: insertUser.password || null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -220,6 +221,9 @@ export class MemStorage implements IStorage {
     const profile: Profile = {
       ...insertProfile,
       id,
+      fullName: insertProfile.fullName || null,
+      company: insertProfile.company || null,
+      avatarUrl: insertProfile.avatarUrl || null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -253,6 +257,16 @@ export class MemStorage implements IStorage {
     const client: Client = {
       ...insertClient,
       id,
+      companyName: insertClient.companyName || null,
+      email: insertClient.email || null,
+      phone: insertClient.phone || null,
+      website: insertClient.website || null,
+      industry: insertClient.industry || null,
+      monthlyBudget: insertClient.monthlyBudget || null,
+      contractStartDate: insertClient.contractStartDate || null,
+      contractEndDate: insertClient.contractEndDate || null,
+      notes: insertClient.notes || null,
+      status: insertClient.status || 'active',
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -282,6 +296,24 @@ export class MemStorage implements IStorage {
     const connection: SocialConnection = {
       ...insertConnection,
       id,
+      username: insertConnection.username || null,
+      avatarUrl: insertConnection.avatarUrl || null,
+      accessToken: insertConnection.accessToken || null,
+      refreshToken: insertConnection.refreshToken || null,
+      tokenExpiresAt: insertConnection.tokenExpiresAt || null,
+      lastSyncAt: insertConnection.lastSyncAt || null,
+      clientId: insertConnection.clientId || null,
+      platformUserId: insertConnection.platformUserId || null,
+      profileUrl: insertConnection.profileUrl || null,
+      followerCount: insertConnection.followerCount || null,
+      followingCount: insertConnection.followingCount || null,
+      postCount: insertConnection.postCount || null,
+      apiQuotaUsed: insertConnection.apiQuotaUsed || null,
+      apiQuotaLimit: insertConnection.apiQuotaLimit || null,
+      webhookUrl: insertConnection.webhookUrl || null,
+      scopes: insertConnection.scopes || null,
+      metadata: insertConnection.metadata || {},
+      isActive: insertConnection.isActive ?? true,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -319,6 +351,13 @@ export class MemStorage implements IStorage {
     const post: SocialPost = {
       ...insertPost,
       id,
+      mediaUrls: insertPost.mediaUrls || null,
+      hashtags: insertPost.hashtags || null,
+      mentions: insertPost.mentions || null,
+      likesCount: insertPost.likesCount || null,
+      commentsCount: insertPost.commentsCount || null,
+      sharesCount: insertPost.sharesCount || null,
+      engagementRate: insertPost.engagementRate || null,
       fetchedAt: new Date(),
       createdAt: new Date()
     };
@@ -344,6 +383,15 @@ export class MemStorage implements IStorage {
     const metric: SocialMetric = {
       ...insertMetric,
       id,
+      followers: insertMetric.followers || null,
+      following: insertMetric.following || null,
+      posts: insertMetric.posts || null,
+      likes: insertMetric.likes || null,
+      comments: insertMetric.comments || null,
+      shares: insertMetric.shares || null,
+      impressions: insertMetric.impressions || null,
+      reach: insertMetric.reach || null,
+      engagementRate: insertMetric.engagementRate || null,
       createdAt: new Date()
     };
     this.socialMetrics.set(id, metric);
@@ -351,5 +399,5 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Use database storage when DATABASE_URL is available, otherwise use in-memory storage
-export const storage = process.env.DATABASE_URL ? new DatabaseStorage() : new MemStorage();
+// Use in-memory storage for development
+export const storage = new MemStorage();

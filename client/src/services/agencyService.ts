@@ -10,7 +10,7 @@ export class AgencyService {
       const clients = await apiClient.getClients(mockAgencyId);
       
       // Apply client-side filtering since our API doesn't support complex filtering yet
-      let filteredClients = clients || [];
+      let filteredClients: Client[] = Array.isArray(clients) ? clients : [];
       
       if (filters?.status) {
         filteredClients = filteredClients.filter(client => client.status === filters.status);
@@ -27,6 +27,7 @@ export class AgencyService {
           const bVal = b[filters.sortBy as keyof Client];
           const ascending = filters.sortOrder === 'asc';
           
+          if (!aVal || !bVal) return 0;
           if (aVal < bVal) return ascending ? -1 : 1;
           if (aVal > bVal) return ascending ? 1 : -1;
           return 0;
@@ -54,7 +55,7 @@ export class AgencyService {
         agencyId: mockAgencyId
       });
       
-      return newClient;
+      return newClient as Client;
     } catch (error) {
       console.error('Error creating client:', error);
       throw error;

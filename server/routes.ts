@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
-import { insertUserSchema, insertProfileSchema, insertClientSchema } from "@shared/schema";
+import { insertUserSchema, insertProfileSchema, insertClientSchema, insertSocialConnectionSchema } from "@shared/schema";
 
 interface GenerateContentRequest {
   type: 'social_posts' | 'google_ads' | 'social_ads';
@@ -212,7 +212,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { createPlatformAPI } = await import('./services/socialMediaAPI');
-      const api = createPlatformAPI(connection.platform, connection.accessToken, connection.refreshToken || undefined);
+      const api = createPlatformAPI(connection.platform, connection.accessToken || '', connection.refreshToken || undefined);
       const profile = await api.getProfile();
       
       // Update connection with fresh profile data
@@ -244,7 +244,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { createPlatformAPI } = await import('./services/socialMediaAPI');
-      const api = createPlatformAPI(connection.platform, connection.accessToken, connection.refreshToken || undefined);
+      const api = createPlatformAPI(connection.platform, connection.accessToken || '', connection.refreshToken || undefined);
       
       const dateRange = start && end ? {
         start: new Date(start as string),
@@ -286,7 +286,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { createPlatformAPI } = await import('./services/socialMediaAPI');
-      const api = createPlatformAPI(connection.platform, connection.accessToken, connection.refreshToken || undefined);
+      const api = createPlatformAPI(connection.platform, connection.accessToken || '', connection.refreshToken || undefined);
       
       const posts = await api.getPosts(
         limit ? parseInt(limit as string) : 10,
@@ -334,7 +334,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const { createPlatformAPI } = await import('./services/socialMediaAPI');
-      const api = createPlatformAPI(connection.platform, connection.accessToken, connection.refreshToken || undefined);
+      const api = createPlatformAPI(connection.platform, connection.accessToken || '', connection.refreshToken || undefined);
       
       const result = await api.publishPost(content, mediaUrls);
       
