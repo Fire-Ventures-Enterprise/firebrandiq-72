@@ -154,7 +154,7 @@ export function Landing() {
               <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <Brain className="h-5 w-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-slate-900">FirebrandIQ</span>
+              <span className="text-xl font-bold text-slate-900">FireBrandIQ</span>
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
@@ -485,7 +485,7 @@ export function Landing() {
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                   <Brain className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-xl font-bold">FirebrandIQ</span>
+                <span className="text-xl font-bold">FireBrandIQ</span>
               </div>
               <p className="text-slate-400 mb-4">
                 AI-powered brand intelligence platform for modern businesses.
@@ -531,7 +531,7 @@ export function Landing() {
           <Separator className="bg-slate-800 mb-8" />
           
           <div className="flex flex-col sm:flex-row justify-between items-center text-slate-400">
-            <p>&copy; 2024 FirebrandIQ. All rights reserved.</p>
+            <p>&copy; 2024 FireBrandIQ. All rights reserved.</p>
             <div className="flex space-x-6 mt-4 sm:mt-0">
               <a href="#" className="hover:text-white">Terms</a>
               <a href="#" className="hover:text-white">Privacy</a>
