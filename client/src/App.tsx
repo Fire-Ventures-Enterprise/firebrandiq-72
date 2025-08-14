@@ -19,6 +19,7 @@ import ContentGenerator from "./pages/ContentGenerator";
 import Campaigns from "./pages/Campaigns";
 import Analytics from "./pages/Analytics";
 import Monitoring from "./pages/Monitoring";
+import { Landing } from "./pages/Landing";
 
 const queryClient = new QueryClient();
 
@@ -30,7 +31,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           {/* Landing page */}
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/home" element={<Index />} />
           
           {/* Main app routes with layout */}
           <Route path="/dashboard" element={<AppLayout />}>
