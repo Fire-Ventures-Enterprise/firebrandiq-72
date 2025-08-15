@@ -30,7 +30,7 @@ serve(async (req) => {
     
     const body = new URLSearchParams({
       To: phoneNumber,
-      From: '+1234567890', // Replace with your Twilio phone number
+      From: '+1234567890', // Replace with your actual Twilio phone number
       Body: `Your FireBrandIQ verification code is: ${otp}. This code expires in 10 minutes.`
     })
 
