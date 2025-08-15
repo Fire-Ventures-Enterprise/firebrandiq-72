@@ -501,6 +501,42 @@ export type Database = {
         }
         Relationships: []
       }
+      security_audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          metadata: Json | null
+          record_id: string | null
+          table_name: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          record_id?: string | null
+          table_name: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          record_id?: string | null
+          table_name?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       social_connections: {
         Row: {
           client_id: string | null
@@ -590,6 +626,15 @@ export type Database = {
       is_agency_owner: {
         Args: { agency_uuid: string }
         Returns: boolean
+      }
+      log_security_event: {
+        Args: {
+          p_action: string
+          p_metadata?: Json
+          p_record_id?: string
+          p_table_name: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
