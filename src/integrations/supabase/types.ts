@@ -583,7 +583,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_active_agency_member: {
+        Args: { agency_uuid: string }
+        Returns: boolean
+      }
+      is_agency_owner: {
+        Args: { agency_uuid: string }
+        Returns: boolean
+      }
     }
     Enums: {
       agency_role: "owner" | "admin" | "manager" | "analyst" | "member"
