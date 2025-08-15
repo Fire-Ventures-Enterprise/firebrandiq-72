@@ -111,15 +111,15 @@ export const ClientListView: React.FC = () => {
     setEditingClient(client);
     setFormData({
       name: client.name,
-      company_name: client.company_name || '',
+      company_name: client.companyName || '',
       email: client.email || '',
       phone: client.phone || '',
       website: client.website || '',
       industry: client.industry || '',
       status: client.status as any,
-      monthly_budget: client.monthly_budget?.toString() || '',
-      contract_start_date: client.contract_start_date || '',
-      contract_end_date: client.contract_end_date || '',
+      monthly_budget: client.monthlyBudget?.toString() || '',
+      contract_start_date: client.contractStartDate || '',
+      contract_end_date: client.contractEndDate || '',
       notes: client.notes || ''
     });
     setShowAddDialog(true);
@@ -146,7 +146,7 @@ export const ClientListView: React.FC = () => {
 
   const filteredClients = clients.filter(client =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -358,7 +358,7 @@ export const ClientListView: React.FC = () => {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>{client.company_name || '-'}</TableCell>
+                      <TableCell>{client.companyName || '-'}</TableCell>
                       <TableCell>
                         <Badge className={getStatusColor(client.status)}>
                           {client.status}
@@ -366,7 +366,7 @@ export const ClientListView: React.FC = () => {
                       </TableCell>
                       <TableCell>{client.industry || '-'}</TableCell>
                       <TableCell>
-                        {client.monthly_budget ? `$${client.monthly_budget.toLocaleString()}` : '-'}
+                        {client.monthlyBudget ? `$${client.monthlyBudget.toLocaleString()}` : '-'}
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">

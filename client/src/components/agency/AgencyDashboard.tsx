@@ -41,7 +41,7 @@ export const AgencyDashboard: React.FC = () => {
 
   const filteredClients = clientMetrics.filter(metric =>
     metric.client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    metric.client.company_name?.toLowerCase().includes(searchTerm.toLowerCase())
+    metric.client.companyName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalRevenue = clientMetrics.reduce((sum, metric) => sum + metric.analytics.total_revenue, 0);

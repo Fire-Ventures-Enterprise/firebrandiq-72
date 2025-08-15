@@ -35,8 +35,8 @@ export const ClientMetricsCard: React.FC<ClientMetricsCardProps> = ({ metric }) 
         <div className="flex items-start justify-between">
           <div>
             <CardTitle className="text-lg">{client.name}</CardTitle>
-            {client.company_name && (
-              <p className="text-sm text-muted-foreground">{client.company_name}</p>
+            {client.companyName && (
+              <p className="text-sm text-muted-foreground">{client.companyName}</p>
             )}
           </div>
           <div className="flex items-center gap-2">
@@ -96,11 +96,11 @@ export const ClientMetricsCard: React.FC<ClientMetricsCardProps> = ({ metric }) 
         </div>
 
         {/* Budget Info */}
-        {client.monthly_budget && (
+        {client.monthlyBudget && (
           <div className="pt-2 border-t">
             <div className="flex justify-between items-center">
               <span className="text-xs text-muted-foreground">Monthly Budget</span>
-              <span className="text-sm font-medium">${client.monthly_budget.toLocaleString()}</span>
+              <span className="text-sm font-medium">${client.monthlyBudget.toLocaleString()}</span>
             </div>
             <div className="flex justify-between items-center mt-1">
               <span className="text-xs text-muted-foreground">Spend</span>

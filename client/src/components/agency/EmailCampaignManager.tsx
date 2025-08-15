@@ -60,7 +60,12 @@ export const EmailCampaignManager: React.FC = () => {
     e.preventDefault();
     
     try {
-      await AgencyService.createEmailCampaign(campaignForm);
+      await AgencyService.createEmailCampaign({
+        ...campaignForm,
+        isBulk: campaignForm.is_bulk,
+        clientIds: campaignForm.client_ids,
+        scheduledAt: campaignForm.scheduled_at
+      });
       toast({
         title: "Success",
         description: "Email campaign created successfully"
@@ -207,7 +212,7 @@ export const EmailCampaignManager: React.FC = () => {
                               onCheckedChange={(checked) => handleClientSelection(client.id, checked as boolean)}
                             />
                             <Label htmlFor={`client-${client.id}`} className="flex-1">
-                              {client.name} {client.company_name && `(${client.company_name})`}
+                              {client.name} {client.companyName && `(${client.companyName})`}
                             </Label>
                           </div>
                         ))}
@@ -270,16 +275,16 @@ export const EmailCampaignManager: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline">
-                          {campaign.is_bulk ? 'Bulk' : 'Targeted'}
+                          {campaign.isBulk ? 'Bulk' : 'Targeted'}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <Users className="w-3 h-3 text-muted-foreground" />
-                          {campaign.is_bulk 
-                            ? 'All clients' 
-                            : `${campaign.client_ids?.length || 0} clients`
-                          }
+                           {campaign.isBulk 
+                             ? 'All clients' 
+                             : `${campaign.clientIds?.length || 0} clients`
+                           }
                         </div>
                       </TableCell>
                       <TableCell>
@@ -288,7 +293,7 @@ export const EmailCampaignManager: React.FC = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {new Date(campaign.created_at).toLocaleDateString()}
+                        {new Date(campaign.createdAt).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">

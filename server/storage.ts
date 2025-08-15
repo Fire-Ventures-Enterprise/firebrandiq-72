@@ -7,9 +7,10 @@ import {
   type InsertUser, type InsertProfile, type InsertClient, type InsertSocialConnection, type InsertSocialPost, type InsertSocialMetric
 } from "@shared/schema";
 
-// Database connection
-const sql = neon(process.env.SUPABASE_DB_URL || process.env.DATABASE_URL || '');
-const db = drizzle(sql);
+// Database connection - only if URL is provided
+const db = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL 
+  ? drizzle(neon(process.env.SUPABASE_DB_URL || process.env.DATABASE_URL!)) 
+  : null;
 
 // Main storage interface
 export interface IStorage {
@@ -47,40 +48,45 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  private getDB() {
+    if (!db) throw new Error('Database not initialized');
+    return db;
+  }
+
   // User methods
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
+    const [user] = await this.getDB().select().from(users).where(eq(users.id, id));
     return user;
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
+    const [user] = await this.getDB().select().from(users).where(eq(users.email, email));
     return user;
   }
 
   async createUser(user: InsertUser): Promise<User> {
-    const [newUser] = await db.insert(users).values(user).returning();
+    const [newUser] = await this.getDB().insert(users).values(user).returning();
     return newUser;
   }
 
   // Profile methods
   async getProfile(id: string): Promise<Profile | undefined> {
-    const [profile] = await db.select().from(profiles).where(eq(profiles.id, id));
+    const [profile] = await this.getDB().select().from(profiles).where(eq(profiles.id, id));
     return profile;
   }
 
   async getProfileByUserId(userId: string): Promise<Profile | undefined> {
-    const [profile] = await db.select().from(profiles).where(eq(profiles.userId, userId));
+    const [profile] = await this.getDB().select().from(profiles).where(eq(profiles.userId, userId));
     return profile;
   }
 
   async createProfile(profile: InsertProfile): Promise<Profile> {
-    const [newProfile] = await db.insert(profiles).values(profile).returning();
+    const [newProfile] = await this.getDB().insert(profiles).values(profile).returning();
     return newProfile;
   }
 
   async updateProfile(id: string, profile: Partial<Profile>): Promise<Profile | undefined> {
-    const [updatedProfile] = await db
+    const [updatedProfile] = await this.getDB()
       .update(profiles)
       .set({ ...profile, updatedAt: new Date() })
       .where(eq(profiles.id, id))
@@ -90,21 +96,21 @@ export class DatabaseStorage implements IStorage {
 
   // Client methods
   async getClients(agencyId: string): Promise<Client[]> {
-    return await db.select().from(clients).where(eq(clients.agencyId, agencyId));
+    return await this.getDB().select().from(clients).where(eq(clients.agencyId, agencyId));
   }
 
   async getClient(id: string): Promise<Client | undefined> {
-    const [client] = await db.select().from(clients).where(eq(clients.id, id));
+    const [client] = await this.getDB().select().from(clients).where(eq(clients.id, id));
     return client;
   }
 
   async createClient(client: InsertClient): Promise<Client> {
-    const [newClient] = await db.insert(clients).values(client).returning();
+    const [newClient] = await this.getDB().insert(clients).values(client).returning();
     return newClient;
   }
 
   async updateClient(id: string, client: Partial<Client>): Promise<Client | undefined> {
-    const [updatedClient] = await db
+    const [updatedClient] = await this.getDB()
       .update(clients)
       .set({ ...client, updatedAt: new Date() })
       .where(eq(clients.id, id))
@@ -114,21 +120,21 @@ export class DatabaseStorage implements IStorage {
 
   // Social connections methods
   async getSocialConnections(userId: string): Promise<SocialConnection[]> {
-    return await db.select().from(socialConnections).where(eq(socialConnections.userId, userId));
+    return await this.getDB().select().from(socialConnections).where(eq(socialConnections.userId, userId));
   }
 
   async createSocialConnection(connection: InsertSocialConnection): Promise<SocialConnection> {
-    const [newConnection] = await db.insert(socialConnections).values(connection).returning();
+    const [newConnection] = await this.getDB().insert(socialConnections).values(connection).returning();
     return newConnection;
   }
 
   async getSocialConnection(id: string): Promise<SocialConnection | undefined> {
-    const [connection] = await db.select().from(socialConnections).where(eq(socialConnections.id, id));
+    const [connection] = await this.getDB().select().from(socialConnections).where(eq(socialConnections.id, id));
     return connection;
   }
 
   async updateSocialConnection(id: string, connection: Partial<SocialConnection>): Promise<SocialConnection | undefined> {
-    const [updatedConnection] = await db
+    const [updatedConnection] = await this.getDB()
       .update(socialConnections)
       .set({ ...connection, updatedAt: new Date() })
       .where(eq(socialConnections.id, id))
@@ -137,23 +143,23 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteSocialConnection(id: string): Promise<boolean> {
-    const result = await db.delete(socialConnections).where(eq(socialConnections.id, id));
+    const result = await this.getDB().delete(socialConnections).where(eq(socialConnections.id, id));
     return result.rowCount > 0;
   }
 
   // Social posts methods
   async getSocialPosts(connectionId: string): Promise<SocialPost[]> {
-    return await db.select().from(socialPosts).where(eq(socialPosts.connectionId, connectionId));
+    return await this.getDB().select().from(socialPosts).where(eq(socialPosts.connectionId, connectionId));
   }
 
   async createSocialPost(post: InsertSocialPost): Promise<SocialPost> {
-    const [newPost] = await db.insert(socialPosts).values(post).returning();
+    const [newPost] = await this.getDB().insert(socialPosts).values(post).returning();
     return newPost;
   }
 
   // Social metrics methods
   async getSocialMetrics(connectionId: string, dateRange?: { start: Date; end: Date }): Promise<SocialMetric[]> {
-    let query = db.select().from(socialMetrics).where(eq(socialMetrics.connectionId, connectionId));
+    let query = this.getDB().select().from(socialMetrics).where(eq(socialMetrics.connectionId, connectionId));
     
     if (dateRange) {
       // Add date range filtering logic here if needed
@@ -163,7 +169,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createSocialMetric(metric: InsertSocialMetric): Promise<SocialMetric> {
-    const [newMetric] = await db.insert(socialMetrics).values(metric).returning();
+    const [newMetric] = await this.getDB().insert(socialMetrics).values(metric).returning();
     return newMetric;
   }
 }
