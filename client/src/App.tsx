@@ -20,6 +20,7 @@ import Campaigns from "./pages/Campaigns";
 import Analytics from "./pages/Analytics";
 import Monitoring from "./pages/Monitoring";
 import { Landing } from "./pages/Landing";
+import { Auth } from "./pages/Auth";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
         <Routes>
           {/* Landing page */}
           <Route path="/" element={<Landing />} />
+          <Route path="/auth" element={<Auth />} />
           <Route path="/home" element={<Index />} />
           
           {/* Main app routes with layout */}

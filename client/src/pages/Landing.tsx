@@ -161,7 +161,7 @@ export function Landing() {
               <a href="#features" className="text-slate-600 hover:text-slate-900 transition-colors">Features</a>
               <a href="#pricing" className="text-slate-600 hover:text-slate-900 transition-colors">Pricing</a>
               <a href="#testimonials" className="text-slate-600 hover:text-slate-900 transition-colors">Reviews</a>
-              <Button variant="outline" size="sm">Sign In</Button>
+              <Button variant="outline" size="sm" onClick={() => window.location.href = '/auth'}>Sign In</Button>
               <Button size="sm">Get Started</Button>
             </div>
           </div>
