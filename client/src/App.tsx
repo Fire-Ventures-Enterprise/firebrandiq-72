@@ -19,7 +19,7 @@ import ContentGenerator from "./pages/ContentGenerator";
 import Campaigns from "./pages/Campaigns";
 import Analytics from "./pages/Analytics";
 import Monitoring from "./pages/Monitoring";
-import { Landing } from "./pages/Landing";
+import { Landing } from "./pages/LandingSimple";
 import { Auth } from "./pages/Auth";
 
 const queryClient = new QueryClient();
