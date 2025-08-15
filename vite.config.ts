@@ -6,9 +6,13 @@ import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(async ({ mode }) => ({
   server: {
-    host: "::",
+    host: "0.0.0.0",
     port: 8080,
-    cors: true,
+    cors: {
+      origin: true,
+      credentials: true
+    },
+    strictPort: true,
   },
   plugins: [
     react(),
