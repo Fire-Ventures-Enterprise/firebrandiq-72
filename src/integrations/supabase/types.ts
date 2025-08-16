@@ -405,6 +405,62 @@ export type Database = {
           },
         ]
       }
+      clients_limited: {
+        Row: {
+          agency_id: string
+          client_id: string
+          company_name: string | null
+          contract_end_date: string | null
+          contract_start_date: string | null
+          created_at: string
+          id: string
+          industry: string | null
+          monthly_budget: number | null
+          name: string
+          status: Database["public"]["Enums"]["client_status"]
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          agency_id: string
+          client_id: string
+          company_name?: string | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          created_at?: string
+          id?: string
+          industry?: string | null
+          monthly_budget?: number | null
+          name: string
+          status?: Database["public"]["Enums"]["client_status"]
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          agency_id?: string
+          client_id?: string
+          company_name?: string | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          created_at?: string
+          id?: string
+          industry?: string | null
+          monthly_budget?: number | null
+          name?: string
+          status?: Database["public"]["Enums"]["client_status"]
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_limited_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_campaigns: {
         Row: {
           agency_id: string
