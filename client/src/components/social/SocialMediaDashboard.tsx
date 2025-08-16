@@ -34,6 +34,7 @@ import { SocialConnectionWizard } from './SocialConnectionWizard';
 import { ContentScheduler } from './ContentScheduler';
 import { PerformanceDashboard } from './PerformanceDashboard';
 import { ContentRecommendationEngine } from './ContentRecommendationEngine';
+import { SocialMediaAlerts } from './SocialMediaAlerts';
 
 interface SocialPost {
   id: string;
@@ -199,12 +200,24 @@ export function SocialMediaDashboard() {
   return (
     <div className="space-y-6" data-testid="social-media-dashboard">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Social Media Dashboard</h1>
-        <Button onClick={loadData} variant="outline" size="sm">
-          <RefreshCwIcon className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
+        <div>
+          <h1 className="text-3xl font-bold">Social Media</h1>
+          <p className="text-muted-foreground">AI-powered social media analytics and optimization</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={loadData} size="sm">
+            <RefreshCwIcon className="h-4 w-4 mr-2" />
+            Analytics
+          </Button>
+          <Button onClick={() => setShowConnectionWizard(true)} size="sm">
+            <ZapIcon className="h-4 w-4 mr-2" />
+            Connect Account
+          </Button>
+        </div>
       </div>
+
+      {/* Social Media Alerts */}
+      <SocialMediaAlerts />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-6">
