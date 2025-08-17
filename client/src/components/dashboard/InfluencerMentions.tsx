@@ -3,6 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Users, ExternalLink, Heart, MessageSquare, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 interface Influencer {
   id: string;
@@ -79,6 +81,24 @@ const influencers: Influencer[] = [
 ];
 
 export default function InfluencerMentions() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleViewInfluencer = (name: string, platform: string) => {
+    toast({
+      title: "Influencer Profile",
+      description: `Viewing ${name}'s profile on ${platform}`,
+    });
+  };
+
+  const handleViewAllInfluencers = () => {
+    navigate('/mentions');
+    toast({
+      title: "All Influencers",
+      description: "Viewing comprehensive influencer analytics",
+    });
+  };
+
   const getSentimentBadge = (sentiment: string) => {
     switch (sentiment) {
       case 'positive':
@@ -152,7 +172,7 @@ export default function InfluencerMentions() {
                     <Badge variant="outline" className="text-xs">
                       {influencer.platform}
                     </Badge>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => handleViewInfluencer(influencer.name, influencer.platform)}>
                       <ExternalLink className="h-3 w-3" />
                     </Button>
                   </div>
@@ -167,7 +187,7 @@ export default function InfluencerMentions() {
             <div className="text-sm font-medium">Total Reach: 92.1K</div>
             <div className="text-sm text-muted-foreground">4 influencers this week</div>
           </div>
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={handleViewAllInfluencers}>
             <Star className="h-4 w-4 mr-2" />
             View All Influencers
           </Button>

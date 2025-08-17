@@ -2,6 +2,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Hash, TrendingUp, TrendingDown, Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 interface Topic {
   id: string;
@@ -64,6 +66,24 @@ const trendingTopics: Topic[] = [
 ];
 
 export default function TrendingTopics() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleViewTopic = (keyword: string) => {
+    toast({
+      title: "Topic Analysis",
+      description: `Viewing detailed analysis for "${keyword}"`,
+    });
+  };
+
+  const handleViewAllTopics = () => {
+    navigate('/mentions');
+    toast({
+      title: "All Topics",
+      description: "Viewing comprehensive topic analysis",
+    });
+  };
+
   const getTrendIcon = (change: number) => {
     if (change > 0) return <TrendingUp className="h-3 w-3 text-success" />;
     return <TrendingDown className="h-3 w-3 text-destructive" />;
@@ -126,7 +146,7 @@ export default function TrendingTopics() {
               
               <div className={`w-2 h-2 rounded-full ${getSentimentColor(topic.sentiment).replace('text-', 'bg-')}`} />
               
-              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+              <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => handleViewTopic(topic.keyword)}>
                 <Eye className="h-3 w-3" />
               </Button>
             </div>
@@ -134,7 +154,7 @@ export default function TrendingTopics() {
         ))}
 
         <div className="pt-3 border-t">
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={handleViewAllTopics}>
             <Hash className="h-4 w-4 mr-2" />
             View All Topics
           </Button>
