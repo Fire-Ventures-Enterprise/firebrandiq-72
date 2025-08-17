@@ -19,6 +19,8 @@ import ContentGenerator from "./pages/ContentGenerator";
 import Campaigns from "./pages/Campaigns";
 import Analytics from "./pages/Analytics";
 import Monitoring from "./pages/Monitoring";
+import Reviews from "./pages/Reviews";
+import Agency from "./pages/Agency";
 import { Landing } from "./pages/LandingSimple";
 import { Auth } from "./pages/Auth";
 
@@ -75,6 +77,12 @@ const App = () => (
           </Route>
           <Route path="/settings" element={<AppLayout />}>
             <Route index element={<Settings />} />
+          </Route>
+          <Route path="/reviews" element={<AppLayout />}>
+            <Route index element={<Reviews />} />
+          </Route>
+          <Route path="/agency" element={<AppLayout />}>
+            <Route index element={<Agency />} />
           </Route>
           
           {/* Redirect from app root to dashboard */}
