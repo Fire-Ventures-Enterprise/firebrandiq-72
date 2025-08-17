@@ -281,7 +281,50 @@ export type Database = {
             referencedRelation: "clients"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "client_analytics_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients_secure_view"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      client_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string
+          client_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by: string
+          client_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          role?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string
+          client_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       client_campaigns: {
         Row: {
@@ -332,6 +375,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_campaigns_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients_secure_view"
             referencedColumns: ["id"]
           },
           {
@@ -457,6 +507,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: true
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clients_limited_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "clients_secure_view"
             referencedColumns: ["id"]
           },
         ]
@@ -638,6 +695,13 @@ export type Database = {
             referencedRelation: "clients"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "social_connections_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients_secure_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       social_token_vault: {
@@ -672,9 +736,78 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      clients_secure_view: {
+        Row: {
+          agency_id: string | null
+          company_name: string | null
+          contract_end_date: string | null
+          contract_start_date: string | null
+          created_at: string | null
+          email: string | null
+          id: string | null
+          industry: string | null
+          monthly_budget: number | null
+          name: string | null
+          notes: string | null
+          phone: string | null
+          status: Database["public"]["Enums"]["client_status"] | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          agency_id?: string | null
+          company_name?: string | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          created_at?: string | null
+          email?: never
+          id?: string | null
+          industry?: string | null
+          monthly_budget?: number | null
+          name?: string | null
+          notes?: string | null
+          phone?: never
+          status?: Database["public"]["Enums"]["client_status"] | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          agency_id?: string | null
+          company_name?: string | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          created_at?: string | null
+          email?: never
+          id?: string | null
+          industry?: string | null
+          monthly_budget?: number | null
+          name?: string | null
+          notes?: string | null
+          phone?: never
+          status?: Database["public"]["Enums"]["client_status"] | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      can_access_client_basic_info: {
+        Args: { client_id_param: string }
+        Returns: boolean
+      }
+      can_access_client_contact_info: {
+        Args: { client_id_param: string }
+        Returns: boolean
+      }
       is_active_agency_member: {
         Args: { agency_uuid: string }
         Returns: boolean
