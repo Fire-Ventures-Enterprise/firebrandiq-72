@@ -614,6 +614,140 @@ export type Database = {
         }
         Relationships: []
       }
+      psychology_approach_analytics: {
+        Row: {
+          approach_name: string | null
+          average_engagement_lift: number | null
+          average_psychology_score: number | null
+          created_at: string | null
+          id: string
+          industry: string | null
+          last_updated: string | null
+          platform: string | null
+          success_rate: number | null
+          total_uses: number | null
+        }
+        Insert: {
+          approach_name?: string | null
+          average_engagement_lift?: number | null
+          average_psychology_score?: number | null
+          created_at?: string | null
+          id?: string
+          industry?: string | null
+          last_updated?: string | null
+          platform?: string | null
+          success_rate?: number | null
+          total_uses?: number | null
+        }
+        Update: {
+          approach_name?: string | null
+          average_engagement_lift?: number | null
+          average_psychology_score?: number | null
+          created_at?: string | null
+          id?: string
+          industry?: string | null
+          last_updated?: string | null
+          platform?: string | null
+          success_rate?: number | null
+          total_uses?: number | null
+        }
+        Relationships: []
+      }
+      psychology_post_generations: {
+        Row: {
+          audience_segment: string | null
+          brand_name: string | null
+          conversion_potential: number | null
+          created_at: string | null
+          emotional_resonance: number | null
+          engagement_prediction: number | null
+          generated_content: string | null
+          id: string
+          industry: string | null
+          platform: string | null
+          psychology_approach: string | null
+          psychology_score: number | null
+          target_emotions: string[] | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          audience_segment?: string | null
+          brand_name?: string | null
+          conversion_potential?: number | null
+          created_at?: string | null
+          emotional_resonance?: number | null
+          engagement_prediction?: number | null
+          generated_content?: string | null
+          id?: string
+          industry?: string | null
+          platform?: string | null
+          psychology_approach?: string | null
+          psychology_score?: number | null
+          target_emotions?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          audience_segment?: string | null
+          brand_name?: string | null
+          conversion_potential?: number | null
+          created_at?: string | null
+          emotional_resonance?: number | null
+          engagement_prediction?: number | null
+          generated_content?: string | null
+          id?: string
+          industry?: string | null
+          platform?: string | null
+          psychology_approach?: string | null
+          psychology_score?: number | null
+          target_emotions?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      psychology_post_performance: {
+        Row: {
+          actual_conversions: number | null
+          actual_engagement: number | null
+          created_at: string | null
+          feedback_rating: number | null
+          generation_id: string | null
+          id: string
+          performance_score: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          actual_conversions?: number | null
+          actual_engagement?: number | null
+          created_at?: string | null
+          feedback_rating?: number | null
+          generation_id?: string | null
+          id?: string
+          performance_score?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          actual_conversions?: number | null
+          actual_engagement?: number | null
+          created_at?: string | null
+          feedback_rating?: number | null
+          generation_id?: string | null
+          id?: string
+          performance_score?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "psychology_post_performance_generation_id_fkey"
+            columns: ["generation_id"]
+            isOneToOne: false
+            referencedRelation: "psychology_post_generations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       security_audit_log: {
         Row: {
           action: string
@@ -731,6 +865,36 @@ export type Database = {
           id?: string
           key_version?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      user_psychology_preferences: {
+        Row: {
+          created_at: string | null
+          default_audience_segment: string | null
+          preferred_approach: string | null
+          preferred_emotions: string[] | null
+          psychology_intensity: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          default_audience_segment?: string | null
+          preferred_approach?: string | null
+          preferred_emotions?: string[] | null
+          psychology_intensity?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          default_audience_segment?: string | null
+          preferred_approach?: string | null
+          preferred_emotions?: string[] | null
+          psychology_intensity?: string | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
