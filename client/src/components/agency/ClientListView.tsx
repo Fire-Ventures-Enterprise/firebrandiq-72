@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Edit, Trash2, Mail, Eye } from "lucide-react";
 import { AgencyService } from "@/services/agencyService";
 import type { Client } from "@/types/agency";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 export const ClientListView: React.FC = () => {
   const [clients, setClients] = useState<Client[]>([]);

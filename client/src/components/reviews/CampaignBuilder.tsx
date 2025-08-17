@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { createReviewCampaign, bulkSendRequests } from "@/services/reviewCampaignService";
 import { Upload, Send, Users, Target, CheckCircle, AlertCircle } from "lucide-react";
 

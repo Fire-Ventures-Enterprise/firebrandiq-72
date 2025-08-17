@@ -6,7 +6,7 @@ import { Search, Filter, ExternalLink, MessageSquare, Calendar, Brain, TrendingU
 import { useState, useEffect } from "react";
 import { AIService, BrandMention } from "@/services/aiService";
 import { useInteractiveActions } from "@/hooks/useInteractiveActions";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 const mockMentions = [
   {

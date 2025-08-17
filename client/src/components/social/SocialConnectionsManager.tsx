@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Instagram, Twitter, Linkedin, Facebook, Youtube, Music, Plus, Unlink } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 // Migrated to server-side API - no longer using Supabase client
 
 interface SocialConnection {

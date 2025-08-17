@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserPlus, Edit, Trash2, Mail, Shield } from "lucide-react";
 import { AgencyService } from "@/services/agencyService";
 import type { AgencyTeamMember } from "@/types/agency";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 export const TeamManagement: React.FC = () => {
   const [teamMembers, setTeamMembers] = useState<AgencyTeamMember[]>([]);

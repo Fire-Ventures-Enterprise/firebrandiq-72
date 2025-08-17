@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import MetricCard from "@/components/dashboard/MetricCard";
 import SentimentChart from "@/components/dashboard/SentimentChart";
 import BrandHealthScore from "@/components/dashboard/BrandHealthScore";

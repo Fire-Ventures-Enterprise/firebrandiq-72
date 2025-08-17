@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Mail, Plus, Send, Edit, Trash2, Users, Calendar } from "lucide-react";
 import { AgencyService } from "@/services/agencyService";
 import type { EmailCampaign, Client } from "@/types/agency";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 export const EmailCampaignManager: React.FC = () => {
   const [campaigns, setCampaigns] = useState<EmailCampaign[]>([]);

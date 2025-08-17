@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReviewCampaign, ReviewRequest } from "@/types/reviews";
 import { Play, Pause, MoreHorizontal, Users, Send, CheckCircle, XCircle } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 // Mock data for demonstration
 const mockCampaigns: ReviewCampaign[] = [

@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, X, Bell, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 interface CrisisAlertProps {
   severity: 'low' | 'medium' | 'high' | 'critical';
