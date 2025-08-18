@@ -24,7 +24,7 @@ import Agency from "./pages/Agency";
 import ContentCalendar from "./pages/ContentCalendar";
 import BrandAssets from "./pages/BrandAssets";
 import AdCreator from "./pages/AdCreator";
-import { Landing } from "./pages/LandingSimple";
+import { Landing } from "./pages/Landing";
 import { Auth } from "./pages/Auth";
 
 const queryClient = new QueryClient();
