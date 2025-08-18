@@ -32,10 +32,11 @@ export function SMSAuthForm({ onVerificationComplete }: SMSAuthFormProps) {
     setLoading(true);
     
     try {
-      const response = await fetch('/api/supabase/functions/v1/send-sms-otp', {
+      const response = await fetch('https://smddydqeufdgywqarbxv.supabase.co/functions/v1/send-sms-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtZGR5ZHFldWZkZ3l3cWFyYnh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ2NTc3MDgsImV4cCI6MjA3MDIzMzcwOH0.0R2lpWCt7vgwid9gUTsVX49Ez8K8bX9tzM-po9bHd_M`
         },
         body: JSON.stringify({ phoneNumber })
       });
@@ -46,7 +47,7 @@ export function SMSAuthForm({ onVerificationComplete }: SMSAuthFormProps) {
         throw new Error(data.error || 'Failed to send OTP');
       }
 
-      setSentOtp(data.otp); // In production, this would be stored securely on the server
+      // SECURITY FIX: OTP is no longer returned from server
       setStep('verify');
       
       toast({
@@ -79,9 +80,31 @@ export function SMSAuthForm({ onVerificationComplete }: SMSAuthFormProps) {
     setLoading(true);
 
     try {
-      // In production, this verification would happen on the server
-      if (otp === sentOtp) {
-        onVerificationComplete(phoneNumber);
+      // SECURITY FIX: Verify OTP server-side
+      const response = await fetch('https://smddydqeufdgywqarbxv.supabase.co/functions/v1/verify-sms-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtZGR5ZHFldWZkZ3l3cWFyYnh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ2NTc3MDgsImV4cCI6MjA3MDIzMzcwOH0.0R2lpWCt7vgwid9gUTsVX49Ez8K8bX9tzM-po9bHd_M`
+        },
+        body: JSON.stringify({ 
+          phoneNumber,
+          otp 
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      if (result.success) {
+        // Store session token securely
+        if (result.sessionToken) {
+          localStorage.setItem('authToken', result.sessionToken);
+        }
+        onVerificationComplete(result.phoneNumber);
         toast({
           title: "Phone verified!",
           description: "Your phone number has been successfully verified",

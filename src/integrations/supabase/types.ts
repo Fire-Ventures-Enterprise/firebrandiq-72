@@ -78,6 +78,42 @@ export type Database = {
           },
         ]
       }
+      auth_phone_otps: {
+        Row: {
+          attempts: number | null
+          created_at: string
+          expires_at: string
+          id: string
+          ip_address: unknown | null
+          max_attempts: number | null
+          otp_hash: string
+          phone_number: string
+          used_at: string | null
+        }
+        Insert: {
+          attempts?: number | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          ip_address?: unknown | null
+          max_attempts?: number | null
+          otp_hash: string
+          phone_number: string
+          used_at?: string | null
+        }
+        Update: {
+          attempts?: number | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip_address?: unknown | null
+          max_attempts?: number | null
+          otp_hash?: string
+          phone_number?: string
+          used_at?: string | null
+        }
+        Relationships: []
+      }
       calendar_events: {
         Row: {
           all_day: boolean | null
@@ -972,6 +1008,10 @@ export type Database = {
         Args: { client_id_param: string }
         Returns: boolean
       }
+      cleanup_expired_otps: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       is_active_agency_member: {
         Args: { agency_uuid: string }
         Returns: boolean
@@ -988,6 +1028,10 @@ export type Database = {
           p_table_name: string
         }
         Returns: undefined
+      }
+      verify_phone_otp: {
+        Args: { p_ip_address?: unknown; p_otp: string; p_phone_number: string }
+        Returns: Json
       }
     }
     Enums: {
