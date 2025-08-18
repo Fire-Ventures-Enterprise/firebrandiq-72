@@ -21,6 +21,9 @@ import Analytics from "./pages/Analytics";
 import Monitoring from "./pages/Monitoring";
 import Reviews from "./pages/Reviews";
 import Agency from "./pages/Agency";
+import ContentCalendar from "./pages/ContentCalendar";
+import BrandAssets from "./pages/BrandAssets";
+import AdCreator from "./pages/AdCreator";
 import { Landing } from "./pages/LandingSimple";
 import { Auth } from "./pages/Auth";
 
@@ -68,6 +71,15 @@ const App = () => (
           </Route>
           <Route path="/content/generator" element={<AppLayout />}>
             <Route index element={<ContentGenerator />} />
+          </Route>
+          <Route path="/content/calendar" element={<AppLayout />}>
+            <Route index element={<ContentCalendar />} />
+          </Route>
+          <Route path="/content/assets" element={<AppLayout />}>
+            <Route index element={<BrandAssets />} />
+          </Route>
+          <Route path="/campaigns/ads" element={<AppLayout />}>
+            <Route index element={<AdCreator />} />
           </Route>
           <Route path="/campaigns" element={<AppLayout />}>
             <Route index element={<Campaigns />} />
