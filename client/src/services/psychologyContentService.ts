@@ -1,4 +1,15 @@
-import { apiClient } from '@/lib/api-client';
+import { createClient } from '@supabase/supabase-js';
+
+const SUPABASE_URL = 'https://smddydqeufdgywqarbxv.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtZGR5ZHFldWZkZ3l3cWFyYnh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ2NTc3MDgsImV4cCI6MjA3MDIzMzcwOH0.0R2lpWCt7vgwid9gUTsVX49Ez8K8bX9tzM-po9bHd_M';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth: {
+    storage: localStorage,
+    persistSession: true,
+    autoRefreshToken: true,
+  }
+});
 
 export interface PsychologyGenerationRequest {
   brandName: string;
@@ -28,28 +39,36 @@ export interface PsychologyResult {
 export class PsychologyContentService {
   static async generatePsychologyPost(request: PsychologyGenerationRequest): Promise<PsychologyResult> {
     try {
-      // For now, use a simulated response until the backend integration is complete
-      // This will be replaced with actual API call to /api/psychology-generate-post
+      console.log('Calling psychology content generator edge function...');
       
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API delay
-      
+      const { data, error } = await supabase.functions.invoke('psychology-content-generator', {
+        body: {
+          brandName: request.brandName,
+          industry: request.industry,
+          psychologyApproach: request.psychologyApproach,
+          platform: request.platform,
+          targetEmotions: request.targetEmotions,
+          adObjective: request.adObjective,
+          brandVoice: request.brandVoice,
+          audienceSegment: request.audienceSegment
+        }
+      });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(error.message || 'Failed to generate psychology content');
+      }
+
+      if (!data || !data.success) {
+        throw new Error(data?.error || 'Failed to generate psychology content');
+      }
+
       return {
-        content: this.generateMockContent(request),
-        psychologyScore: {
-          overall: Math.floor(Math.random() * 20) + 75, // 75-95%
-          breakdown: {
-            specialization: Math.random() * 0.3 + 0.7, // 70-100%
-            differentiation: Math.random() * 0.25 + 0.75, // 75-100%
-            segmentation: Math.random() * 0.2 + 0.8, // 80-100%
-            concentration: Math.random() * 0.15 + 0.85  // 85-100%
-          }
-        },
-        engagementPrediction: {
-          predicted: Math.floor(Math.random() * 40) + 60, // 60-100% boost
-          confidence: Math.floor(Math.random() * 15) + 85 // 85-100% confidence
-        },
-        conversionPotential: Math.random() * 1.5 + 1.5, // 1.5x - 3x
-        emotionalResonance: Math.floor(Math.random() * 20) + 75 // 75-95%
+        content: data.content,
+        psychologyScore: data.psychologyScore,
+        engagementPrediction: data.engagementPrediction,
+        conversionPotential: data.conversionPotential,
+        emotionalResonance: data.emotionalResonance
       };
     } catch (error) {
       console.error('Psychology content generation error:', error);
