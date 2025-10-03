@@ -148,9 +148,20 @@ serve(async (req) => {
   } catch (error) {
     console.error('SMS OTP Error:', error.message)
     
+    // Map errors to generic user-facing messages
+    let userMessage = 'Service temporarily unavailable. Please try again later.'
+    
+    if (error.message.includes('rate limit') || error.message.includes('Too many')) {
+      userMessage = 'Too many attempts. Please try again later.'
+    } else if (error.message.includes('phone') || error.message.includes('Valid phone')) {
+      userMessage = 'Invalid phone number format.'
+    } else if (error.message.includes('Twilio credentials')) {
+      userMessage = 'SMS service is not configured. Please contact support.'
+    }
+    
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Failed to send SMS OTP' 
+        error: userMessage
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -80,9 +80,18 @@ serve(async (req) => {
   } catch (error) {
     console.error('SMS OTP Verification Error:', error.message)
     
+    // Map errors to generic user-facing messages
+    let userMessage = 'Verification failed. Please try again.'
+    
+    if (error.message.includes('Phone number') || error.message.includes('OTP')) {
+      userMessage = 'Invalid or expired verification code.'
+    } else if (error.message.includes('required')) {
+      userMessage = 'Phone number and verification code are required.'
+    }
+    
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Failed to verify SMS OTP' 
+        error: userMessage
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
