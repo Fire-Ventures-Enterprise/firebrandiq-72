@@ -17,7 +17,13 @@ interface SocialConnection {
   created_at: string;
 }
 
-const platformConfigs = {
+const platformConfigs: Record<string, {
+  name: string;
+  icon: any;
+  color: string;
+  useOAuth?: boolean;
+  fields: Array<{ key: string; label: string; type: string; required: boolean }>;
+}> = {
   instagram: {
     name: "Instagram",
     icon: Instagram,
@@ -31,10 +37,8 @@ const platformConfigs = {
     name: "Twitter/X",
     icon: Twitter,
     color: "text-blue-400",
-    fields: [
-      { key: "access_token", label: "Bearer Token", type: "password", required: true },
-      { key: "username", label: "Username", type: "text", required: true }
-    ]
+    useOAuth: true,
+    fields: []
   },
   linkedin: {
     name: "LinkedIn",
@@ -115,10 +119,61 @@ export default function SocialConnectionsManager() {
     }
   };
 
-  const handleConnectPlatform = (platform: string) => {
-    setSelectedPlatform(platform);
-    setFormData({});
-    setConnectDialogOpen(true);
+  const handleConnectPlatform = async (platform: string) => {
+    const config = platformConfigs[platform as keyof typeof platformConfigs];
+    
+    // Handle OAuth platforms differently
+    if (config.useOAuth) {
+      await initiateOAuthFlow(platform);
+    } else {
+      setSelectedPlatform(platform);
+      setFormData({});
+      setConnectDialogOpen(true);
+    }
+  };
+
+  const initiateOAuthFlow = async (platform: string) => {
+    try {
+      if (platform === 'twitter') {
+        const { supabase } = await import('@/integrations/supabase/client');
+        
+        // Get auth session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          toast({
+            title: "Authentication Required",
+            description: "Please log in to connect social accounts",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        // Call edge function to get authorization URL
+        const { data, error } = await supabase.functions.invoke('twitter-oauth-init', {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`
+          }
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        if (data?.authUrl) {
+          // Redirect to Twitter authorization
+          window.location.href = data.authUrl;
+        } else {
+          throw new Error('No authorization URL returned');
+        }
+      }
+    } catch (error) {
+      console.error('OAuth initiation error:', error);
+      toast({
+        title: "Connection Error",
+        description: `Failed to initiate ${platform} connection. Please try again.`,
+        variant: "destructive"
+      });
+    }
   };
 
   const handleSaveConnection = async () => {
