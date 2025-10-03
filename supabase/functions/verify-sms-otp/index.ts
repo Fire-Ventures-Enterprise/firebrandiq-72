@@ -6,6 +6,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+interface VerifyResponse {
+  success: boolean
+  error?: string
+  phone_number?: string
+  session?: any
+  user?: any
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -57,9 +65,40 @@ serve(async (req) => {
       )
     }
     
-    // For demo purposes, we'll create a simple session token
-    // In production, integrate with Supabase Auth properly
-    const sessionToken = crypto.randomUUID()
+    // SECURITY FIX: Create or get existing Supabase Auth user
+    // Check if user already exists with this phone number
+    const { data: existingUsers } = await supabase.auth.admin.listUsers()
+    let authUser = existingUsers?.users?.find(u => u.phone === phoneNumber)
+    
+    if (!authUser) {
+      // Create new user with phone number
+      const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
+        phone: phoneNumber,
+        phone_confirm: true, // Auto-confirm since we verified OTP
+        user_metadata: { phone_verified: true }
+      })
+      
+      if (createError) {
+        console.error('Error creating auth user:', createError)
+        throw new Error('Failed to create user account')
+      }
+      
+      authUser = newUser.user
+    }
+    
+    // Generate a proper Supabase session for the user
+    const { data: sessionData, error: sessionError } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email: authUser.email || `${authUser.id}@phone.local`, // Fallback email
+      options: {
+        redirectTo: `${req.headers.get('origin') || 'http://localhost:5000'}/`
+      }
+    })
+    
+    if (sessionError) {
+      console.error('Error generating session:', sessionError)
+      throw new Error('Failed to create session')
+    }
     
     // Clean up expired OTPs periodically
     await supabase.rpc('cleanup_expired_otps')
@@ -68,9 +107,15 @@ serve(async (req) => {
       JSON.stringify({ 
         success: true,
         phoneNumber: data.phone_number,
-        sessionToken, // In production, use proper Supabase Auth
+        user: {
+          id: authUser.id,
+          phone: authUser.phone,
+          phone_verified: true
+        },
+        // Return the magic link properties for client-side session creation
+        magicLink: sessionData.properties,
         message: 'Phone number verified successfully'
-      }),
+      } as VerifyResponse),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200 

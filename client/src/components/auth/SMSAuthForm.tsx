@@ -6,9 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Loader2, Phone, Shield } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import type { Session } from "@supabase/supabase-js";
 
 interface SMSAuthFormProps {
-  onVerificationComplete: (phoneNumber: string) => void;
+  onVerificationComplete: (phoneNumber: string, session: Session) => void;
 }
 
 export function SMSAuthForm({ onVerificationComplete }: SMSAuthFormProps) {
@@ -16,7 +18,6 @@ export function SMSAuthForm({ onVerificationComplete }: SMSAuthFormProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
-  const [sentOtp, setSentOtp] = useState('');
   const { toast } = useToast();
 
   const sendOTP = async () => {
@@ -32,25 +33,12 @@ export function SMSAuthForm({ onVerificationComplete }: SMSAuthFormProps) {
     setLoading(true);
     
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      
-      const response = await fetch(`${supabaseUrl}/functions/v1/send-sms-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabaseKey}`
-        },
-        body: JSON.stringify({ phoneNumber })
+      const { data, error } = await supabase.functions.invoke('send-sms-otp', {
+        body: { phoneNumber }
       });
 
-      const data = await response.json();
+      if (error) throw error;
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to send OTP');
-      }
-
-      // SECURITY FIX: OTP is no longer returned from server
       setStep('verify');
       
       toast({
@@ -71,7 +59,7 @@ export function SMSAuthForm({ onVerificationComplete }: SMSAuthFormProps) {
   };
 
   const verifyOTP = async () => {
-    if (!otp) {
+    if (!otp || otp.length !== 6) {
       toast({
         title: "Verification code required",
         description: "Please enter the 6-digit code",
@@ -83,40 +71,41 @@ export function SMSAuthForm({ onVerificationComplete }: SMSAuthFormProps) {
     setLoading(true);
 
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      
-      // SECURITY FIX: Verify OTP server-side
-      const response = await fetch(`${supabaseUrl}/functions/v1/verify-sms-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabaseKey}`
-        },
-        body: JSON.stringify({ 
+      // SECURITY FIX: Verify OTP and get Supabase session
+      const { data, error } = await supabase.functions.invoke('verify-sms-otp', {
+        body: { 
           phoneNumber,
           otp 
-        })
+        }
       });
 
-      const result = await response.json();
+      if (error) throw error;
 
-      if (result.error) {
-        throw new Error(result.error);
-      }
+      if (data.success && data.magicLink) {
+        // Create Supabase session with the tokens from verification
+        const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+          access_token: data.magicLink.access_token,
+          refresh_token: data.magicLink.refresh_token
+        });
 
-      if (result.success) {
-        // Store session token securely
-        if (result.sessionToken) {
-          localStorage.setItem('authToken', result.sessionToken);
+        if (sessionError) {
+          console.error('Session creation error:', sessionError);
+          throw new Error('Failed to create session');
         }
-        onVerificationComplete(result.phoneNumber);
+
+        // Clear any old custom tokens
+        localStorage.removeItem('authToken');
+
         toast({
           title: "Phone verified!",
           description: "Your phone number has been successfully verified",
         });
+
+        if (sessionData.session) {
+          onVerificationComplete(data.phoneNumber, sessionData.session);
+        }
       } else {
-        throw new Error('Invalid verification code');
+        throw new Error(data.error || 'Invalid verification code');
       }
 
     } catch (error) {

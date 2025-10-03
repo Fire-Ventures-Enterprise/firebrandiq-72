@@ -6,13 +6,16 @@ import { SMSAuthForm } from "@/components/auth/SMSAuthForm";
 import { Brain, Mail, Phone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import type { Session } from "@supabase/supabase-js";
+
 export function Auth() {
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleSMSVerification = (phoneNumber: string) => {
+  const handleSMSVerification = (phoneNumber: string, session: Session) => {
+    console.log("SMS verification complete, session established:", session.user.id);
     setVerifiedPhone(phoneNumber);
-    // In a real app, you'd set the user session here
+    // Redirect to dashboard after successful verification
     setTimeout(() => {
       navigate('/dashboard');
     }, 1500);
