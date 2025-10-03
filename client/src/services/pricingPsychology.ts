@@ -1,5 +1,5 @@
 /**
- * PricingPsychology Module
+ * PricingPsychology Module - FirebrandIQ Premium Feature
  * Revenue optimization based on user behavior patterns
  * Implements Concentration principle with 3x weighting for high-revenue opportunities
  */
