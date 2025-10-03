@@ -1032,6 +1032,10 @@ export type Database = {
         Args: { client_id_param: string }
         Returns: boolean
       }
+      can_access_full_client_data: {
+        Args: { client_id_param: string }
+        Returns: boolean
+      }
       cleanup_expired_otps: {
         Args: Record<PropertyKey, never>
         Returns: number
