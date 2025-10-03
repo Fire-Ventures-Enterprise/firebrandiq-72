@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = 'https://smddydqeufdgywqarbxv.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtZGR5ZHFldWZkZ3l3cWFyYnh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ2NTc3MDgsImV4cCI6MjA3MDIzMzcwOH0.0R2lpWCt7vgwid9gUTsVX49Ez8K8bX9tzM-po9bHd_M';
+// Use environment variables for configuration
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {

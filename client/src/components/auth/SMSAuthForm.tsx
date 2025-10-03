@@ -32,11 +32,14 @@ export function SMSAuthForm({ onVerificationComplete }: SMSAuthFormProps) {
     setLoading(true);
     
     try {
-      const response = await fetch('https://smddydqeufdgywqarbxv.supabase.co/functions/v1/send-sms-otp', {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      
+      const response = await fetch(`${supabaseUrl}/functions/v1/send-sms-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtZGR5ZHFldWZkZ3l3cWFyYnh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ2NTc3MDgsImV4cCI6MjA3MDIzMzcwOH0.0R2lpWCt7vgwid9gUTsVX49Ez8K8bX9tzM-po9bHd_M`
+          'Authorization': `Bearer ${supabaseKey}`
         },
         body: JSON.stringify({ phoneNumber })
       });
@@ -80,12 +83,15 @@ export function SMSAuthForm({ onVerificationComplete }: SMSAuthFormProps) {
     setLoading(true);
 
     try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      
       // SECURITY FIX: Verify OTP server-side
-      const response = await fetch('https://smddydqeufdgywqarbxv.supabase.co/functions/v1/verify-sms-otp', {
+      const response = await fetch(`${supabaseUrl}/functions/v1/verify-sms-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtZGR5ZHFldWZkZ3l3cWFyYnh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ2NTc3MDgsImV4cCI6MjA3MDIzMzcwOH0.0R2lpWCt7vgwid9gUTsVX49Ez8K8bX9tzM-po9bHd_M`
+          'Authorization': `Bearer ${supabaseKey}`
         },
         body: JSON.stringify({ 
           phoneNumber,

@@ -217,10 +217,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Schema for updating social connections
+  const updateSocialConnectionSchema = z.object({
+    username: z.string().max(100).optional(),
+    platform_user_id: z.string().max(200).optional(),
+    is_active: z.boolean().optional(),
+    token_expires_at: z.string().datetime().optional(),
+  });
+
   app.put("/api/social/connections/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const updateData = req.body;
+      const updateData = updateSocialConnectionSchema.parse(req.body);
       const connection = await storage.updateSocialConnection(id, updateData);
       
       if (!connection) {
@@ -229,6 +237,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(connection);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid input", details: error.errors });
+      }
       console.error("Error updating social connection:", error);
       res.status(500).json({ error: "Internal server error" });
     }
@@ -250,13 +261,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Schema for testing social connections
+  const testConnectionSchema = z.object({
+    platform: z.enum(['facebook', 'instagram', 'twitter', 'linkedin', 'tiktok']),
+    accessToken: z.string().min(1).max(500),
+    refreshToken: z.string().max(500).optional(),
+  });
+
   app.post("/api/social/test-connection", async (req, res) => {
     try {
-      const { platform, accessToken, refreshToken } = req.body;
-      
-      if (!platform || !accessToken) {
-        return res.status(400).json({ error: "Platform and access token are required" });
-      }
+      const { platform, accessToken, refreshToken } = testConnectionSchema.parse(req.body);
 
       const { createPlatformAPI } = await import('./services/socialMediaAPI');
       const api = createPlatformAPI(platform, accessToken, refreshToken);
@@ -264,6 +278,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(result);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid input", details: error.errors });
+      }
       console.error("Error testing social connection:", error);
       res.status(500).json({ error: "Internal server error" });
     }
@@ -386,14 +403,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Schema for publishing posts
+  const publishPostSchema = z.object({
+    content: z.string().min(1).max(5000),
+    mediaUrls: z.array(z.string().url()).max(10).optional(),
+  });
+
   app.post("/api/social/publish/:connectionId", async (req, res) => {
     try {
       const { connectionId } = req.params;
-      const { content, mediaUrls } = req.body;
-      
-      if (!content) {
-        return res.status(400).json({ error: "Content is required" });
-      }
+      const { content, mediaUrls } = publishPostSchema.parse(req.body);
 
       const connection = await storage.getSocialConnection(connectionId);
       if (!connection) {
@@ -424,6 +443,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(result);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid input", details: error.errors });
+      }
       console.error("Error publishing social post:", error);
       res.status(500).json({ error: "Internal server error" });
     }
